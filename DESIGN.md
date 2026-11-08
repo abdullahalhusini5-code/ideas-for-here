@@ -103,7 +103,7 @@ index.
 
 Accessibility: real buttons with `aria-pressed` / `aria-expanded`, a live region for the
 result count, visible focus rings, `prefers-reduced-motion` honoured, contrast ≥ 5:1 for
-body and muted text, and the whole thing still works at 390 px wide.
+body and muted text, and the whole thing still works at 320 px wide.
 
 ## What was deliberately left out
 
@@ -112,3 +112,18 @@ body and muted text, and the whole thing still works at 390 px wide.
   variables, so a second language would be a translation pass, not a rewrite.
 - Live AI generation — see above. It can be added later as an optional endpoint without
   touching the catalog or the ranking.
+
+## Making it a real page, not a demo
+
+A catalog that claims "no account, no tracking" has to also say who runs it, what happens
+to your data, and what you may do with the text. Four short notes carry that in plain
+English — privacy, licence, accessibility, how it is made — plus a dated "last updated"
+stamp, a real contact route, and real files behind every claim: `LICENSE` (CC BY 4.0 for
+text and catalog, MIT for code), `robots.txt`, `sitemap.xml`, `404.html`, icons and a
+1200×630 share image.
+
+The copy pass cut rather than added: the hero lost a clause, each section head lost a
+sentence, the match aside lost a paragraph, and the footer's long provenance essay became
+a four-column index. Legal text is the deliberate exception, and it is kept short enough
+to actually be read. The privacy note states the one thing the page cannot control —
+GitHub Pages keeps ordinary server logs as the host.

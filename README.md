@@ -24,10 +24,14 @@ Opening `index.html` directly from disk also works.
 
 | File | Purpose |
 |---|---|
-| `index.html` | Structure, copy for the hero and footer, both modes |
+| `index.html` | Structure, copy, both modes, privacy/licence/accessibility notes |
 | `styles.css` | The whole visual system; variables at the top |
 | `ideas.js` | The catalog — 31 ideas plus the remix word lists |
 | `app.js` | Filtering, ranking, questionnaire, remix, rendering |
+| `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
+| `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
+| `404.html` | Static not-found page for GitHub Pages |
+| `favicon.svg`, `apple-touch-icon.png`, `og.png` | Icons and the 1200×630 share image |
 | `DESIGN.md` | Why it works this way, including the static-vs-AI decision |
 | `tools/check-links.js` | Re-checks every external link in the catalog |
 
@@ -79,6 +83,15 @@ It is plain static files; any of these work with no configuration:
 - **Vercel** — `npx vercel --prod`
 - **Cloudflare Pages** — upload the folder
 - **GitHub Pages** — commit to a repo, enable Pages on the root
-- **Neocities** — upload the four files
+- **Neocities** — upload the whole folder
 
 Nothing needs to be built before uploading.
+
+## Licence and privacy
+
+Text, the idea briefs and `ideas.js` are **CC BY 4.0**; the code is **MIT**. See
+`LICENSE`. Reuse is welcome with credit and a link back.
+
+The page sets no cookies, runs no analytics and makes no requests after load. GitHub
+Pages still records standard server logs as the host; the in-page privacy note says so
+plainly. No third-party scripts are loaded.

@@ -326,7 +326,7 @@
     if (!list.length) {
       const empty = el("p");
       empty.style.cssText = "padding:34px 4px;grid-column:1/-1;border-top:1px solid var(--rule);color:var(--muted)";
-      empty.textContent = "Nothing matches that combination. Try clearing one filter — or shuffle a new brief at the bottom of the page.";
+      empty.textContent = "Nothing matches that combination. Clear a filter, or shuffle a brief below.";
       grid.appendChild(empty);
     }
   }
@@ -386,7 +386,7 @@
     );
 
     $("#remix-step").textContent =
-      `First move: one evening writing down every fact you already know about ${topic}. ` +
+      `First move: one evening listing every fact you already know about ${topic}. ` +
       `That list is the content; ${format.replace(/^a /, "the ")} is only the wrapper.`;
 
     $("#remix").dataset.copy = `Take ${topic} and turn it into ${format} — ${constraint}.`;
@@ -602,7 +602,7 @@
     title.textContent = `Your ${top.length} starter${top.length === 1 ? "" : "s"}`;
     $("#match-sub").textContent =
       `Picked for ${areaLabelOf(a.area)} · ${timeLabel(a.time)} · ${laneLabel(a.lane)}. ` +
-      `Ranked by arithmetic, not by a model — the reasons are printed on each one.`;
+      `Ranked by arithmetic, not a model; every result prints its reasons.`;
 
     const host = $("#matches");
     host.innerHTML = "";

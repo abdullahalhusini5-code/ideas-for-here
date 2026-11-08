@@ -1,0 +1,72 @@
+Ideas for Here
+Copyright © 2026 abdullahalhusini5-code
+
+This work is released under two licences, because there are two kinds of
+thing here.
+
+--------------------------------------------------------------------------------
+1. TEXT, IDEAS AND CATALOG DATA — CC BY 4.0
+--------------------------------------------------------------------------------
+
+Applies to: the prose in index.html, ideas.js (the catalog and its
+descriptions), README.md, DESIGN.md, and this file.
+
+Licensed under the Creative Commons Attribution 4.0 International licence.
+
+You are free to:
+  - Share — copy and redistribute the material in any medium or format.
+  - Adapt — remix, transform, and build upon the material for any purpose,
+    even commercially.
+
+Under the following terms:
+  - Attribution — You must give appropriate credit to "Ideas for Here",
+    provide a link to the licence, and indicate if changes were made. You
+    may do so in any reasonable manner, but not in any way that suggests
+    the licensor endorses you or your use.
+  - No additional restrictions — You may not apply legal terms or
+    technological measures that legally restrict others from doing
+    anything the licence permits.
+
+No warranties are given. The licence may not give you all of the
+permissions necessary for your intended use.
+
+Licence summary: https://creativecommons.org/licenses/by/4.0/
+Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+--------------------------------------------------------------------------------
+2. CODE — MIT
+--------------------------------------------------------------------------------
+
+Applies to: app.js, styles.css, index.html (markup), 404.html,
+tools/check-links.js, and any other source code in this repository.
+
+MIT License
+
+Copyright © 2026 abdullahalhusini5-code
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+3. THIRD-PARTY MATERIAL
+--------------------------------------------------------------------------------
+
+The catalog links to third-party resources — prompts.chat, public-apis,
+awesome-llm-apps, free-for-dev, data providers and hosts. Those are linked,
+not copied, and remain under their own terms and licences. Following a link
+does not grant you a licence to that material.

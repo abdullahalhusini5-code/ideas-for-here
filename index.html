@@ -3,16 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ideas for Here — app and project ideas for the place you live</title>
-<meta name="description" content="Plain-English app and project ideas for local people: browse the catalog, or answer four questions and get three starters matched to your time, skills and what you care about. Every idea is a concrete brief with first moves, and — where it fits — free pieces to start from.">
+<title>Ideas for Here — small apps and projects for where you live</title>
+<meta name="description" content="A free catalog of 31 plain-English app and project ideas for local life. Browse by area, time and skills, or answer four questions and get three starters. No account, no tracking, no cost.">
+<meta name="author" content="abdullahalhusini5-code">
+<meta name="robots" content="index, follow">
 <meta name="theme-color" content="#f7f3ea">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="https://abdullahalhusini5-code.github.io/ideas-for-here/">
+<meta property="og:site_name" content="Ideas for Here">
 <meta property="og:title" content="Ideas for Here">
-<meta property="og:description" content="Things worth building for the place you actually live. Browse the catalog, or get three matched to you.">
+<meta property="og:description" content="31 small apps and projects for ordinary local problems. Browse the catalog, or get three matched to your time and skills.">
 <meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23f7f3ea'/><circle cx='50' cy='50' r='26' fill='none' stroke='%23b23a2a' stroke-width='7'/></svg>">
+<meta property="og:url" content="https://abdullahalhusini5-code.github.io/ideas-for-here/">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://abdullahalhusini5-code.github.io/ideas-for-here/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ideas for Here — 31 ideas, 8 areas of life, free to start.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Ideas for Here",
+  "url": "https://abdullahalhusini5-code.github.io/ideas-for-here/",
+  "description": "A free catalog of 31 plain-English app and project ideas for local life, with a four-question matcher.",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "dateModified": "2026-11-08",
+  "creator": {
+    "@type": "Person",
+    "name": "abdullahalhusini5-code",
+    "url": "https://github.com/abdullahalhusini5-code"
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": "Idea catalog",
+    "numberOfItems": 31,
+    "itemListOrder": "https://schema.org/ItemListOrderAscending"
+  }
+}
+</script>
 </head>
 <body>
+
+<a class="skip" href="#top">Skip to content</a>
 
 <header class="topbar">
   <div class="topbar__inner">
@@ -29,13 +68,14 @@
     <section class="hero" id="hero">
       <p class="eyebrow">For neighbours, not developers</p>
       <h1>Ideas for the place you <em>actually</em> live.</h1>
-      <p class="lede"><span id="fig-word">Thirty-one</span> small apps and projects born from ordinary local problems — the water going out, the school letter in the bag, the price of eggs, the medicine Mum forgets. Each one is written in plain language, with the first four moves and whatever free starting pieces apply.</p>
+      <p class="lede"><span id="fig-word">Thirty-one</span> small apps and projects for ordinary local problems — the water going out, the school letter, the price of eggs. Each is a plain-language brief with the first moves and the free pieces that apply.</p>
       <div class="figures">
         <div><b id="fig-ideas">31</b><span>ideas</span></div>
         <div><b>8</b><span>areas of life</span></div>
         <div><b>4</b><span>questions to a match</span></div>
         <div><b>0</b><span>cost to start</span></div>
       </div>
+      <p class="pagestamp">Updated <time datetime="2026-11-08">8 November 2026</time> · Text <a href="#licence">CC BY 4.0</a> · Code MIT · <a href="#privacy">No cookies, no tracking</a></p>
     </section>
 
     <!-- ============ BROWSE ============ -->
@@ -43,7 +83,7 @@
       <div class="sectionhead">
         <div>
           <h2>Browse the catalog</h2>
-          <p>Filter by what it's for and how much time you have. Open any card to see the free pieces that make it buildable.</p>
+          <p>Filter by area, time or how you'd build it. Open a card for the first moves and free pieces.</p>
         </div>
         <button class="btn btn--ghost btn--sm" id="btn-reset" type="button">Clear filters</button>
       </div>
@@ -73,20 +113,19 @@
 
       <div class="resultbar">
         <p id="count" aria-live="polite">31 ideas</p>
-        <p style="font-family:var(--mono);font-size:10.5px;letter-spacing:.12em">CATALOG · UPDATED BY HAND</p>
+        <p><time datetime="2026-11-08">Updated 8 Nov 2026</time></p>
       </div>
 
       <div class="grid" id="grid"></div>
 
       <noscript>
-        <p style="padding:30px 0">This catalog is rendered in the browser with JavaScript. Everything lives in <code>ideas.js</code> if you'd rather read it directly.</p>
+        <p style="padding:30px 0">Cards are drawn by JavaScript. With scripting off, read the catalog directly in <code>ideas.js</code>.</p>
       </noscript>
 
-      <!-- remix generator -->
       <div class="remix" id="remix">
         <div class="remix__head">
-          <h3>Nothing fits? Shuffle a new brief.</h3>
-          <span class="chiprow__label">Deterministic · no AI, no cost</span>
+          <h3>Nothing fits? Shuffle a brief.</h3>
+          <span class="chiprow__label">No AI · no cost</span>
         </div>
         <p class="remix__brief" id="remix-brief"></p>
         <p class="remix__step" id="remix-step"></p>
@@ -112,9 +151,8 @@
         </div>
         <aside class="ask__aside">
           <h3>How this works</h3>
-          <p>Four questions. No account, no email, nothing to sign up for.</p>
-          <p>The ranking is arithmetic, not a model: your four answers are weighted, the catalog is sorted, and the reason is printed on every result so you can disagree with the maths.</p>
-          <p>Nothing you pick is sent anywhere. This page makes no requests after it loads.</p>
+          <p>Four questions. No account, no email, nothing sent anywhere.</p>
+          <p>Ranking is arithmetic, not a model: answers are weighted, the catalog is sorted, and every result prints its reasons.</p>
         </aside>
       </div>
 
@@ -126,7 +164,7 @@
         <div class="matches" id="matches"></div>
         <div class="also">
           <h3>Also worth a look</h3>
-          <p>Ranked next, based on what you told us.</p>
+          <p>Ranked next, from the same answers.</p>
           <div class="alsolist" id="alsolist"></div>
         </div>
         <div class="ask__nav">
@@ -139,14 +177,78 @@
   </div>
 </main>
 
-<footer>
-  <div class="wrap foot">
-    <div>
-      <p><b>Where these ideas come from.</b> The pieces are real, not decorative: starter prompts come from <a href="https://prompts.chat" rel="noopener">prompts.chat</a>, data sources from the <a href="https://github.com/public-apis/public-apis" rel="noopener">public-apis</a> index, working patterns from <a href="https://github.com/Shubhamsaboo/awesome-llm-apps" rel="noopener">awesome-llm-apps</a>, and places to publish from <a href="https://free-for.dev" rel="noopener">free-for-dev</a>. Not every idea needs all four — each card lists the pieces that actually apply, and invents nothing to fill a gap.</p>
-      <p>The matching is arithmetic, not AI: four answers, weighted, sorted. No accounts, no tracking, no requests after the page loads.</p>
+<p class="printnote">Ideas for Here · text CC BY 4.0 · abdullahalhusini5-code.github.io/ideas-for-here</p>
+
+<section class="about" id="about" aria-labelledby="about-title">
+  <div class="wrap">
+    <div class="about__head">
+      <p class="eyebrow">About this page</p>
+      <h2 id="about-title">Small print, in plain English.</h2>
+      <p>A personal, non-commercial page. Nothing to sign up for, nothing to buy.</p>
     </div>
-    <div>
-      <p>Built as a plain static page.<br>Open it, search it, print it, fork it.</p>
+    <div class="about__grid">
+      <article class="note" id="privacy">
+        <h3>Privacy</h3>
+        <p>No accounts, no cookies, no analytics, no advertising, no third-party scripts. The page stores nothing, not even in your browser: your answers live in memory and vanish when you close the tab. “Copy this brief” writes to your clipboard and nowhere else.</p>
+        <p>The host, GitHub Pages, keeps standard server logs — IP address, browser, time, page requested — for security and abuse. GitHub's <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">privacy statement</a> covers that. Links to other sites open in a new tab; once you follow one, that site's policy applies.</p>
+      </article>
+      <article class="note" id="licence">
+        <h3>Licence</h3>
+        <p>The written ideas and the catalog are <a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>: reuse, adapt, translate, print or sell your version, if you credit “Ideas for Here” and link back.</p>
+        <p>The code is <a href="https://opensource.org/license/mit" rel="noopener">MIT</a>. Third-party resources linked from the cards stay under their own licences; nothing is copied into this page.</p>
+        <p><a href="https://github.com/abdullahalhusini5-code/ideas-for-here/blob/main/LICENSE" rel="noopener">Read the full licence</a></p>
+      </article>
+      <article class="note" id="access">
+        <h3>Accessibility</h3>
+        <p>Aiming at WCAG 2.2 AA: keyboard-operable controls, visible focus, 200% zoom, down to 320 px, reduced motion respected, colour never the only signal, and complete kits when printed.</p>
+        <p>Known limits: cards are rendered by JavaScript, so with scripting off you get the raw data in <code>ideas.js</code>; and the print layout is practical rather than beautiful. If something blocks you, <a href="https://github.com/abdullahalhusini5-code/ideas-for-here/issues" rel="noopener">open an issue</a>.</p>
+      </article>
+      <article class="note" id="colophon">
+        <h3>How it is made</h3>
+        <p>One HTML file, one stylesheet, two scripts. No framework, no build step, no webfonts, no photographs, no dependencies — under 100 KB before compression. The matcher is a fixed arithmetic score (area 5, goal 3, time 2, build 2), with its reasons printed on every result. No model, no API, no key.</p>
+        <p>Ideas come from ordinary local problems; the free pieces come from the open catalogs credited below. Links re-checked by hand and with <code>tools/check-links.js</code>.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot__brand">
+        <p class="foot__mark">Ideas for Here</p>
+        <p>A free catalog of small things worth building where you live.</p>
+      </div>
+      <nav class="foot__col" aria-labelledby="foot-page">
+        <h2 id="foot-page">The page</h2>
+        <ul>
+          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#licence">Licence</a></li>
+          <li><a href="#access">Accessibility</a></li>
+          <li><a href="#colophon">How it is made</a></li>
+        </ul>
+      </nav>
+      <nav class="foot__col" aria-labelledby="foot-sources">
+        <h2 id="foot-sources">Sources</h2>
+        <ul>
+          <li><a href="https://prompts.chat" rel="noopener">prompts.chat</a> — starter prompts</li>
+          <li><a href="https://github.com/public-apis/public-apis" rel="noopener">public-apis</a> — data sources</li>
+          <li><a href="https://github.com/Shubhamsaboo/awesome-llm-apps" rel="noopener">awesome-llm-apps</a> — patterns</li>
+          <li><a href="https://free-for.dev" rel="noopener">free-for-dev</a> — free hosting</li>
+        </ul>
+      </nav>
+      <nav class="foot__col" aria-labelledby="foot-contact">
+        <h2 id="foot-contact">Contact</h2>
+        <ul>
+          <li><a href="https://github.com/abdullahalhusini5-code/ideas-for-here/issues/new" rel="noopener">Suggest an idea</a></li>
+          <li><a href="https://github.com/abdullahalhusini5-code/ideas-for-here/issues" rel="noopener">Report a broken link</a></li>
+          <li><a href="https://github.com/abdullahalhusini5-code/ideas-for-here" rel="noopener">Source on GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="foot__bottom">
+      <p>© 2026 abdullahalhusini5-code · Text CC BY 4.0 · Code MIT</p>
+      <p>No cookies. No trackers. No requests after load.</p>
     </div>
   </div>
 </footer>

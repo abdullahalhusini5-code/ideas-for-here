@@ -74,4 +74,6 @@ const urls = [...new Set([...kitLinks, ...htmlHrefs.filter((h) => /^https?:\/\//
   } else {
     console.log("all links OK");
   }
+  // Fetch keeps sockets alive; exit deterministically once the report is written.
+  process.exit(process.exitCode || 0);
 })();

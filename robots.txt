@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abdullahalhusini5-code.github.io/ideas-for-here/sitemap.xml
