@@ -1,5 +1,7 @@
 # Ideas for Here
 
+Live at **https://abdullahalhusini5-code.github.io/ideas-for-here/**
+
 A static page that gives local people app and project ideas in plain English — browsable
 as a catalog, or narrowed by four questions. Every idea is a concrete brief with the first
 moves; where it fits, it also carries the free pieces to start: a data source, a pattern, a
