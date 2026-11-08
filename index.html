@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideas for Here — app and project ideas for the place you live</title>
+<meta name="description" content="Plain-English app and project ideas for local people: browse the catalog, or answer four questions and get three starters matched to your time, skills and what you care about. Every idea is a concrete brief with first moves, and — where it fits — free pieces to start from.">
+<meta name="theme-color" content="#f7f3ea">
+<meta property="og:title" content="Ideas for Here">
+<meta property="og:description" content="Things worth building for the place you actually live. Browse the catalog, or get three matched to you.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23f7f3ea'/><circle cx='50' cy='50' r='26' fill='none' stroke='%23b23a2a' stroke-width='7'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__inner">
+    <a class="wordmark" href="#top"><b>Ideas for Here</b><span>/ a shelf of things worth building</span></a>
+    <div class="modeswitch" role="tablist" aria-label="How to use this page">
+      <button role="tab" id="tab-browse" aria-selected="true" aria-controls="panel-browse">Browse all</button>
+      <button role="tab" id="tab-ask" aria-selected="false" aria-controls="panel-ask">Match me</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero" id="hero">
+      <p class="eyebrow">For neighbours, not developers</p>
+      <h1>Ideas for the place you <em>actually</em> live.</h1>
+      <p class="lede"><span id="fig-word">Thirty-one</span> small apps and projects born from ordinary local problems — the water going out, the school letter in the bag, the price of eggs, the medicine Mum forgets. Each one is written in plain language, with the first four moves and whatever free starting pieces apply.</p>
+      <div class="figures">
+        <div><b id="fig-ideas">31</b><span>ideas</span></div>
+        <div><b>8</b><span>areas of life</span></div>
+        <div><b>4</b><span>questions to a match</span></div>
+        <div><b>0</b><span>cost to start</span></div>
+      </div>
+    </section>
+
+    <!-- ============ BROWSE ============ -->
+    <section class="panel" id="panel-browse" role="tabpanel" aria-labelledby="tab-browse">
+      <div class="sectionhead">
+        <div>
+          <h2>Browse the catalog</h2>
+          <p>Filter by what it's for and how much time you have. Open any card to see the free pieces that make it buildable.</p>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="btn-reset" type="button">Clear filters</button>
+      </div>
+
+      <div class="controls">
+        <div class="searchrow">
+          <div class="searchfield">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="search" placeholder="Search: water, school, receipts, invoices…" aria-label="Search ideas" autocomplete="off">
+          </div>
+          <button class="btn btn--ghost" id="btn-surprise" type="button">Surprise me</button>
+        </div>
+
+        <div class="chiprow" role="group" aria-label="Filter by area">
+          <span class="chiprow__label">Area</span>
+          <div id="chips-area" style="display:contents"></div>
+        </div>
+        <div class="chiprow" role="group" aria-label="Filter by time">
+          <span class="chiprow__label">Time</span>
+          <div id="chips-time" style="display:contents"></div>
+        </div>
+        <div class="chiprow" role="group" aria-label="Filter by how you'd build it">
+          <span class="chiprow__label">Build</span>
+          <div id="chips-lane" style="display:contents"></div>
+        </div>
+      </div>
+
+      <div class="resultbar">
+        <p id="count" aria-live="polite">31 ideas</p>
+        <p style="font-family:var(--mono);font-size:10.5px;letter-spacing:.12em">CATALOG · UPDATED BY HAND</p>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <noscript>
+        <p style="padding:30px 0">This catalog is rendered in the browser with JavaScript. Everything lives in <code>ideas.js</code> if you'd rather read it directly.</p>
+      </noscript>
+
+      <!-- remix generator -->
+      <div class="remix" id="remix">
+        <div class="remix__head">
+          <h3>Nothing fits? Shuffle a new brief.</h3>
+          <span class="chiprow__label">Deterministic · no AI, no cost</span>
+        </div>
+        <p class="remix__brief" id="remix-brief"></p>
+        <p class="remix__step" id="remix-step"></p>
+        <div class="remix__actions">
+          <button class="btn btn--ghost btn--sm" id="btn-remix" type="button">Shuffle again</button>
+          <button class="btn btn--ghost btn--sm" id="btn-copy-remix" type="button">Copy this brief</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MATCH ============ -->
+    <section class="panel" id="panel-ask" role="tabpanel" aria-labelledby="tab-ask" hidden>
+      <h2 class="sr-only">Match me</h2>
+      <div class="askwrap" id="ask-form">
+        <div class="ask">
+          <div class="ask__progress" id="ask-progress" aria-hidden="true"></div>
+          <div id="qhost"></div>
+          <div class="ask__nav">
+            <button class="btn btn--ghost" id="btn-back" type="button">Back</button>
+            <span class="spacer"></span>
+            <button class="btn" id="btn-next" type="button">Next</button>
+          </div>
+        </div>
+        <aside class="ask__aside">
+          <h3>How this works</h3>
+          <p>Four questions. No account, no email, nothing to sign up for.</p>
+          <p>The ranking is arithmetic, not a model: your four answers are weighted, the catalog is sorted, and the reason is printed on every result so you can disagree with the maths.</p>
+          <p>Nothing you pick is sent anywhere. This page makes no requests after it loads.</p>
+        </aside>
+      </div>
+
+      <div id="ask-results" hidden>
+        <div class="matchhead">
+          <h2 id="match-title">Your three starters</h2>
+          <p id="match-sub"></p>
+        </div>
+        <div class="matches" id="matches"></div>
+        <div class="also">
+          <h3>Also worth a look</h3>
+          <p>Ranked next, based on what you told us.</p>
+          <div class="alsolist" id="alsolist"></div>
+        </div>
+        <div class="ask__nav">
+          <button class="btn btn--ghost" id="btn-again" type="button">Change my answers</button>
+          <span class="spacer"></span>
+          <button class="btn" id="btn-see-all" type="button">See the whole catalog</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <p><b>Where these ideas come from.</b> The pieces are real, not decorative: starter prompts come from <a href="https://prompts.chat" rel="noopener">prompts.chat</a>, data sources from the <a href="https://github.com/public-apis/public-apis" rel="noopener">public-apis</a> index, working patterns from <a href="https://github.com/Shubhamsaboo/awesome-llm-apps" rel="noopener">awesome-llm-apps</a>, and places to publish from <a href="https://free-for.dev" rel="noopener">free-for-dev</a>. Not every idea needs all four — each card lists the pieces that actually apply, and invents nothing to fill a gap.</p>
+      <p>The matching is arithmetic, not AI: four answers, weighted, sorted. No accounts, no tracking, no requests after the page loads.</p>
+    </div>
+    <div>
+      <p>Built as a plain static page.<br>Open it, search it, print it, fork it.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="ideas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
