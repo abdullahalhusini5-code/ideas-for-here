@@ -124,6 +124,6 @@ text and catalog, MIT for code), `robots.txt`, `sitemap.xml`, `404.html`, icons 
 
 The copy pass cut rather than added: the hero lost a clause, each section head lost a
 sentence, the match aside lost a paragraph, and the footer's long provenance essay became
-a four-column index. Legal text is the deliberate exception, and it is kept short enough
+a three-column index. Legal text is the deliberate exception, and it is kept short enough
 to actually be read. The privacy note states the one thing the page cannot control —
 GitHub Pages keeps ordinary server logs as the host.
