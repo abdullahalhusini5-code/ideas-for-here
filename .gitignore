@@ -1,3 +1,4 @@
 .playwright-mcp/
+.serena/
 shot-*.png
 v2-*.png
