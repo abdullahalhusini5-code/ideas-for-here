@@ -29,10 +29,12 @@ Consequences that turned out to be features:
   combination (topic × format × constraint) that produces a new brief on each shuffle.
   Same delight, no model, no cost.
 
-## Two ways in
+## Ways in
 
 **Browse.** Full catalog, filtered by area, available time, and how the person wants to
-build it, plus free-text search. Every card expands into a *build kit*.
+build it, plus free-text search. Every card carries the facts needed before opening it —
+roughly how long, how it is built, what you need, and how many free pieces the kit holds —
+and expands into a *build kit* with who it helps, the first moves, and the honest catch.
 
 **Match me.** Four questions, one screen each, then a ranked shortlist:
 
@@ -67,9 +69,14 @@ Each idea in `ideas.js`:
   area,                                // one of 8
   goals: [], minutes, lanes: [],       // ranking dimensions
   needs: [], steps: [],                // what it takes, four moves
+  helps, watch,                        // who it is for; the honest catch
   kit: { data, data2, prompt, prompt2, pattern, publish }
 }
 ```
+
+`helps` and `watch` live in a separate `BRIEF` map keyed by idea id and are merged onto
+`IDEAS` at load, so thirty-one records stay skimmable. Both appear inside the build kit;
+`helps` also appears on the match result.
 
 `kit` is the provenance requirement made concrete. Every entry it contains resolves to a
 real page — `app.js` renders a non-http value as plain text rather than a dead link:
@@ -100,6 +107,22 @@ printed community noticeboard than to a SaaS landing page: no colour gradients, 
 no purple. (The only gradient is a 3%-opacity CSS rule used to fake paper grain, and it
 disappears in print.) Cards form a continuous hairline grid, and the catalog reads like an
 index.
+
+Three layout decisions carry the details without adding noise:
+
+- **The hero is two columns above 1040 px.** The right column is a plain "what a card
+  gives you" panel, so the headline does not have to explain the whole page.
+- **Card metadata is a set of wrap tokens, not a `·`-joined sentence.** Time, lanes, needs
+  and free-piece count each break cleanly, so no line ever starts with a stranded dot, on
+  any width.
+- **The grid ends with a dashed "suggest an idea" tile that fills the leftover cells of the
+  last row.** A short catalog leaves a gap; that gap becomes the invitation to add to it.
+  The tile is sized in JS and re-sized on window resize.
+
+Below the catalog, a separate **Start tonight** section gives three steps for someone who
+would rather invent their own brief than pick one: name the problem in one sentence, do
+the first move on paper, show it to one person. It is hidden in print with the other
+chrome.
 
 Accessibility: real buttons with `aria-pressed` / `aria-expanded`, a live region for the
 result count, visible focus rings, `prefers-reduced-motion` honoured, contrast ≥ 5:1 for

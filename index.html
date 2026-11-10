@@ -66,16 +66,32 @@
 <main id="top">
   <div class="wrap">
     <section class="hero" id="hero">
-      <p class="eyebrow">For neighbours, not developers</p>
-      <h1>Ideas for the place you <em>actually</em> live.</h1>
-      <p class="lede"><span id="fig-word">Thirty-one</span> small apps and projects for ordinary local problems — the water going out, the school letter, the price of eggs. Each is a plain-language brief with the first moves and the free pieces that apply.</p>
-      <div class="figures">
-        <div><b id="fig-ideas">31</b><span>ideas</span></div>
-        <div><b>8</b><span>areas of life</span></div>
-        <div><b>4</b><span>questions to a match</span></div>
-        <div><b>0</b><span>cost to start</span></div>
+      <div class="hero__body">
+        <p class="eyebrow">For neighbours, not developers</p>
+        <h1>Ideas for the place you <em>actually</em> live.</h1>
+        <p class="lede"><span id="fig-word">Thirty-one</span> small apps and projects for ordinary local problems — the water going out, the school letter, the price of eggs. Each is a plain-language brief with the first moves and the free pieces that apply.</p>
+        <div class="figures">
+          <div><b id="fig-ideas">31</b><span>ideas</span></div>
+          <div><b>8</b><span>areas of life</span></div>
+          <div><b>4</b><span>questions to a match</span></div>
+          <div><b>0</b><span>cost to start</span></div>
+        </div>
+        <p class="pagestamp">
+          <span>Updated <time datetime="2026-11-09">9 November 2026</time></span>
+          <span>Text <a href="#licence">CC BY 4.0</a></span>
+          <span>Code MIT</span>
+          <span><a href="#privacy">No cookies, no tracking</a></span>
+        </p>
       </div>
-      <p class="pagestamp">Updated <time datetime="2026-11-09">9 November 2026</time> · Text <a href="#licence">CC BY 4.0</a> · Code MIT · <a href="#privacy">No cookies, no tracking</a></p>
+      <aside class="hero__panel" aria-labelledby="hero-panel-title">
+        <h2 id="hero-panel-title">What a card gives you</h2>
+        <ol>
+          <li><b>A plain brief.</b> What it is and who it actually helps, in the words you would use yourself.</li>
+          <li><b>First moves.</b> Four steps short enough to start tonight, not a project plan.</li>
+          <li><b>Free pieces.</b> A data source, a starter prompt, a pattern, and a place to publish.</li>
+        </ol>
+        <p>No account, no email, nothing sent anywhere.</p>
+      </aside>
     </section>
 
     <!-- ============ BROWSE ============ -->
@@ -179,6 +195,33 @@
 
 <p class="printnote">Ideas for Here · text CC BY 4.0 · abdullahalhusini5-code.github.io/ideas-for-here</p>
 
+<section class="start" id="start" aria-labelledby="start-title">
+  <div class="wrap">
+    <div class="start__head">
+      <p class="eyebrow">If you would rather begin tonight</p>
+      <h2 id="start-title">Start with a problem, not an idea.</h2>
+      <p>You do not need one of these thirty-one. You need one thing that annoys you every week, described honestly. Everything on this page was built that way.</p>
+    </div>
+    <ol class="start__steps">
+      <li>
+        <span class="start__num" aria-hidden="true">01</span>
+        <h3>Name it in one sentence.</h3>
+        <p>Not “an app for the building”. “The water goes off and nobody knows for how long.” One sentence you could say to a neighbour without explaining.</p>
+      </li>
+      <li>
+        <span class="start__num" aria-hidden="true">02</span>
+        <h3>Do the first move on paper.</h3>
+        <p>Write down the four things you already know about it. That list is the content. The app, the page, the group message — that is only the wrapper.</p>
+      </li>
+      <li>
+        <span class="start__num" aria-hidden="true">03</span>
+        <h3>Show it to one person.</h3>
+        <p>If they ask to use it, open a card and take the free pieces. If they shrug, you have lost twenty minutes rather than a weekend.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
 <section class="about" id="about" aria-labelledby="about-title">
   <div class="wrap">
     <div class="about__head">
@@ -222,6 +265,7 @@
       <nav class="foot__col" aria-labelledby="foot-page">
         <h2 id="foot-page">The page</h2>
         <ul>
+          <li><a href="#start">Start tonight</a></li>
           <li><a href="#privacy">Privacy</a></li>
           <li><a href="#licence">Licence</a></li>
           <li><a href="#access">Accessibility</a></li>

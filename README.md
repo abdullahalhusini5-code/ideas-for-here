@@ -5,7 +5,9 @@ Live at **https://abdullahalhusini5-code.github.io/ideas-for-here/**
 A static page that gives local people app and project ideas in plain English — browsable
 as a catalog, or narrowed by four questions. Every idea is a concrete brief with the first
 moves; where it fits, it also carries the free pieces to start: a data source, a pattern, a
-starter prompt, or a free place to publish.
+starter prompt, or a free place to publish. Each card states the time, build route, what you
+need and how many free pieces it holds before you open it; each kit adds who the idea helps
+and what to watch out for.
 
 No build step. No server. No API keys. No requests after the page loads.
 
@@ -26,8 +28,8 @@ Opening `index.html` directly from disk also works.
 |---|---|
 | `index.html` | Structure, copy, both modes, privacy/licence/accessibility notes |
 | `styles.css` | The whole visual system; variables at the top |
-| `ideas.js` | The catalog — 31 ideas plus the remix word lists |
-| `app.js` | Filtering, ranking, questionnaire, remix, rendering |
+| `ideas.js` | The catalog — 31 ideas, per-idea `helps`/`watch` briefs, and the remix word lists |
+| `app.js` | Filtering, ranking, questionnaire, remix, rendering, suggest-tile placement |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
 | `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
 | `404.html` | Static not-found page for GitHub Pages |
@@ -37,7 +39,8 @@ Opening `index.html` directly from disk also works.
 
 ## Add or edit an idea
 
-Add an object to `IDEAS` in `ideas.js`:
+Add an object to `IDEAS` in `ideas.js`, and its `helps` / `watch` text to the `BRIEF` map
+just above the remix lists (both fields may also be written inline on the idea):
 
 ```js
 {
@@ -51,6 +54,8 @@ Add an object to `IDEAS` in `ideas.js`:
   lanes: ["ready", "assistant"],      // ready|assistant|code
   needs: ["A phone"],
   steps: ["...", "...", "...", "..."],
+  helps: "Who this is actually for, in one or two sentences.",
+  watch: "The honest catch: what it will not do, or what the owner must keep doing.",
   kit: {
     data:    ["Name", "https://…", "why it's useful"],
     prompt:  ["Name", "https://prompts.chat/prompts/<id>", "prompts.chat · Category"],

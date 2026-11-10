@@ -71,6 +71,7 @@
     const hero = $("#hero");
     if (hero) hero.hidden = name === "ask";
     if (name === "ask") renderQuestion();
+    if (name === "browse") placeSuggest();
     if (moveFocus) tabs[name].tab.focus();
   }
 
@@ -236,9 +237,29 @@
     const text = el("p", "card__text"); text.textContent = idea.describe;
 
     const meta = el("div", "card__meta");
-    const metaText = el("span");
-    metaText.textContent = `${timeLabel(idea.minutes)} · ${idea.lanes.map((l) => LANE_SHORT[l] || l).join(" · ")}`;
-    meta.append(metaText);
+    const timeTok = el("span", "card__meta-time");
+    timeTok.textContent = timeLabel(idea.minutes);
+    meta.appendChild(timeTok);
+    idea.lanes.forEach((lane) => {
+      const tok = el("span");
+      tok.textContent = LANE_SHORT[lane] || lane;
+      meta.appendChild(tok);
+    });
+
+    const facts = el("div", "card__facts");
+    if (idea.needs && idea.needs.length) {
+      const need = el("span");
+      const needLabel = el("b"); needLabel.textContent = "Needs";
+      need.append(needLabel, document.createTextNode(" " + idea.needs.join(", ")));
+      facts.appendChild(need);
+    }
+    const pieceCount = idea.kit ? Object.keys(idea.kit).length : 0;
+    if (pieceCount) {
+      const pieces = el("span");
+      const piecesLabel = el("b"); piecesLabel.textContent = "Kit";
+      pieces.append(piecesLabel, document.createTextNode(` ${pieceCount} free ${pieceCount === 1 ? "piece" : "pieces"}`));
+      facts.appendChild(pieces);
+    }
 
     const btn = el("button", "expander");
     btn.type = "button";
@@ -246,7 +267,7 @@
     btn.innerHTML = 'Build kit <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
     btn.addEventListener("click", () => toggleKit(card, idea, btn));
 
-    card.append(top, h3, tag, text, meta, btn);
+    card.append(top, h3, tag, text, meta, facts, btn);
 
     if (state.open.has(idea.id)) openKit(card, idea, btn);
     return card;
@@ -281,6 +302,12 @@
   function kitEl(idea) {
     const kit = el("div", "kit");
 
+    if (idea.helps) {
+      const hHelps = el("h4"); hHelps.textContent = "Who it helps";
+      const pHelps = el("p", "kit__note"); pHelps.textContent = idea.helps;
+      kit.append(hHelps, pHelps);
+    }
+
     const hSteps = el("h4"); hSteps.textContent = "How you'd do it";
     const ol = el("ol");
     (idea.steps || []).forEach((s) => { const li = el("li"); li.textContent = s; ol.appendChild(li); });
@@ -309,7 +336,36 @@
       rows.forEach((r) => links.appendChild(r));
       kit.append(hKit, links);
     }
+
+    if (idea.watch) {
+      const hWatch = el("h4"); hWatch.textContent = "What to watch for";
+      const pWatch = el("p", "kit__note"); pWatch.textContent = idea.watch;
+      kit.append(hWatch, pWatch);
+    }
     return kit;
+  }
+
+  function suggestEl() {
+    const box = el("div", "suggest");
+    const p = el("p");
+    const b = el("b"); b.textContent = "Not on the list?";
+    p.append(b, document.createTextNode(" Tell me the problem you actually have, the one this page missed."));
+    const a = el("a", "btn btn--ghost btn--sm");
+    a.href = "https://github.com/abdullahalhusini5-code/ideas-for-here/issues/new";
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.textContent = "Suggest an idea";
+    box.append(p, a);
+    return box;
+  }
+
+  function placeSuggest() {
+    const grid = $("#grid");
+    const band = grid.querySelector(".suggest");
+    if (!band || !grid.offsetParent) return;
+    const cols = getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
+    const used = grid.querySelectorAll(".card").length % cols;
+    band.style.gridColumn = used === 0 ? "1 / -1" : `span ${cols - used}`;
   }
 
   function renderGrid() {
@@ -317,6 +373,8 @@
     const grid = $("#grid");
     grid.innerHTML = "";
     list.forEach((idea) => grid.appendChild(cardEl(idea)));
+    if (list.length) grid.appendChild(suggestEl());
+    placeSuggest();
 
     const count = $("#count");
     count.textContent = list.length === IDEAS.length
@@ -668,7 +726,14 @@
       : "it's the closest thing in the catalog to what you described.";
     why.appendChild(strong);
 
-    main.append(rank, h3, tag, text, why);
+    const helps = idea.helps ? textEl("p", "match__helps") : null;
+    if (helps) {
+      const helpsLabel = el("b"); helpsLabel.textContent = "Good for ";
+      helps.append(helpsLabel, document.createTextNode(idea.helps));
+      main.append(rank, h3, tag, text, helps, why);
+    } else {
+      main.append(rank, h3, tag, text, why);
+    }
 
     const side = el("div", "match__side");
     const h4 = textEl("h4", "Your first moves");
@@ -732,6 +797,12 @@
   if (word) word.textContent = capitalise(numberWord(total));
   const bootCount = $("#count");
   if (bootCount) bootCount.textContent = `${total} ideas`;
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(placeSuggest, 120);
+  });
 
   buildChips();
   renderGrid();

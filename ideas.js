@@ -592,6 +592,137 @@ const REMIX_TOPICS = [
   "the bus that never comes", "your cousin's bakery", "the summer holiday", "the electricity bill"
 ];
 
+/* Who each idea is actually for, and the honest catch. Kept beside the catalog
+ * rather than inside it so the idea records stay skimmable. Merged in below. */
+const BRIEF = {
+  "garden-calendar": {
+    helps: "Households growing food on a balcony, a roof or a small plot, where the advice online assumes a different climate.",
+    watch: "Weather data gives averages, not your yard. The first season will be wrong in places, so treat the calendar as a draft you keep correcting."
+  },
+  "fridge-recipes": {
+    helps: "Anyone cooking for a family on a tight week, where the food is already bought and the hard part is deciding.",
+    watch: "It will suggest combinations that sound wrong. Keep the three meals the household actually ate and quietly drop the rest."
+  },
+  "market-prices": {
+    helps: "People who shop weekly and suspect the bill is rising faster than the wages, but have no record to prove it.",
+    watch: "Twenty items is the limit. Track more and you stop tracking. Note which shop each price came from, or the line means nothing."
+  },
+  "bread-coach": {
+    helps: "Someone learning a craft alone, where the recipe assumes a teacher standing next to them.",
+    watch: "A coach can describe 'until it looks right' but cannot feel the dough. Expect to fail the first three loaves; that is the lesson."
+  },
+  "gift-budget": {
+    helps: "Anyone planning a wedding, Eid, Christmas or a birthday round, where the spending happens in small amounts and the total arrives at the end.",
+    watch: "The limit per person is the whole point. Set it after the shopping and this is only a folder of receipts."
+  },
+  "bill-split": {
+    helps: "Shared flats and extended families where one person pays and three people forget.",
+    watch: "It records what was paid, not who is right. Agree what counts as a shared bill before the first entry, or the argument moves into the app."
+  },
+  "two-currencies": {
+    helps: "People earning in one currency and spending in another, sending money home, working abroad, or saving for a trip.",
+    watch: "Rates move daily and the card fee hides behind the headline rate. Show the date of the rate and the fee, or the number lies."
+  },
+  "renovation-tracker": {
+    helps: "Anyone running a kitchen, bathroom or single-room job with several trades who each wait for the one before.",
+    watch: "The plan is the easy part. Build in a two-week slip and a ten per cent contingency, or the first delay takes the budget with it."
+  },
+  "warranty-vault": {
+    helps: "Households with a drawer of faded receipts and no idea which appliances are still covered.",
+    watch: "A photograph of a receipt fades too if it is out of focus. Check the date and the shop are readable before you file it."
+  },
+  "meter-reader": {
+    helps: "Tenants and owners whose bill arrives as one number with no explanation of where it came from.",
+    watch: "A weekly reading catches a leak, not a habit. It cannot tell you which appliance is expensive without a second meter."
+  },
+  "car-service": {
+    helps: "People who keep a car running on memory: the service, the registration, the tyre that has been low for months.",
+    watch: "A reminder is only as good as the date you entered. Photograph the paperwork when you file it, not a year later."
+  },
+  "family-trip": {
+    helps: "Families where one person plans everything and everyone else asks the same four questions.",
+    watch: "One plan only works if everyone can open it. Decide who owns the dates and the budget before you share the link."
+  },
+  "weekend-kids": {
+    helps: "Parents on a Thursday evening with two days to fill and no intention of spending much.",
+    watch: "Local listings go stale. Confirm the place is open the week you publish it, or the list becomes a list of disappointments."
+  },
+  "school-deadlines": {
+    helps: "Parents juggling two or three schools, where the letter arrives in a bag and the date is next week.",
+    watch: "Schools change dates without telling the calendar. Re-check the term dates at the start of each term, not once a year."
+  },
+  "chores-allowance": {
+    helps: "Households where the same argument about jobs and pocket money happens every Sunday.",
+    watch: "It settles the total, not the fairness. Agree the rate per job with the children once, in writing, or the board becomes the argument."
+  },
+  "medicine-reminder": {
+    helps: "Older parents living alone, or anyone whose doses are remembered by a relative rather than by them.",
+    watch: "This is a record, not a medical device. Keep the phone alarm as the reminder; the screen is for whoever checks in."
+  },
+  "walking-habit": {
+    helps: "People who want to move more and have already abandoned two apps that scolded them.",
+    watch: "Honest counting means some weeks look bad. Hide those and the month stops telling you anything."
+  },
+  "appointment-log": {
+    helps: "Anyone with a long-running condition, or caring for someone who sees four different doctors.",
+    watch: "It holds health details. Keep it on your own device, and never paste a whole record into a public page or a group chat."
+  },
+  "exam-plan": {
+    helps: "Students revising alone, and adults sitting a qualification around a job.",
+    watch: "The reshuffle is the useful part. A plan that never moves is a plan you have already abandoned."
+  },
+  "english-practice": {
+    helps: "Recent arrivals, and anyone who reads English better than they speak it in front of a person.",
+    watch: "A machine will not teach the rhythm of a real conversation. Use it to lose the fear, then practise with a person."
+  },
+  "hobby-coach": {
+    helps: "Adults who have bought the instrument, the board or the sewing machine, and stopped at the third session.",
+    watch: "One small step is the whole design. If it starts offering a curriculum, it has become the hundred videos again."
+  },
+  "skill-swap": {
+    helps: "Neighbours with a skill and no outlet, and neighbours with a need and no money for lessons.",
+    watch: "Matching strangers needs a public place and a first meeting. Do not publish phone numbers; let the board hold the introduction."
+  },
+  "lost-found": {
+    helps: "Streets and buildings where things are found every week and the group chat scrolls past them in a day.",
+    watch: "Do not publish a photo that proves ownership. Ask the claimer to describe something that is not in the picture."
+  },
+  "building-board": {
+    helps: "Buildings with a caretaker, a group chat, and no single place where the water-cut notice survives.",
+    watch: "It only works if the caretaker can post in under a minute. Test that first; a board nobody updates is worse than the chat."
+  },
+  "outage-map": {
+    helps: "Streets where the water or power goes off and everyone asks the group chat whether it is just them.",
+    watch: "Two buttons and nothing else. Every extra field is a reason not to report, and an unreported outage is invisible."
+  },
+  "pothole-report": {
+    helps: "Residents who report the same pothole or broken light three times and get nowhere.",
+    watch: "The office may ignore email. Find the channel they actually read, a form, a number or a council app, before building the message."
+  },
+  "volunteer-shifts": {
+    helps: "Small organisations, a centre, a mosque or a school, where the same four people fill every rota.",
+    watch: "Publishing shifts is easy; reminding people is the work. Decide who sends the reminder before you launch it."
+  },
+  "trade-invoice": {
+    helps: "Plumbers, electricians and painters who quote on WhatsApp and remember payments in a notebook.",
+    watch: "A clean invoice does not make a customer pay. Keep the record anyway; it is the thing that ends the argument."
+  },
+  "home-baker-catalog": {
+    helps: "Home bakers and cooks selling through five chats and a phone that rings during dinner.",
+    watch: "Yesterday's cake has to disappear. If the page is not updated the next morning, it is selling something you cannot make."
+  },
+  "first-cv": {
+    helps: "School leavers and people returning to work who have done plenty and can name none of it as experience.",
+    watch: "Do not let it invent experience. Every line has to survive a question in an interview."
+  },
+  "paperwork-checklist": {
+    helps: "Anyone facing a visa, an insurance claim, a permit or a registration where one missing paper resets the whole visit.",
+    watch: "Official requirements change without notice. Date the checklist and re-read the source the week of the appointment."
+  }
+};
+
+IDEAS.forEach((idea) => { if (BRIEF[idea.id]) Object.assign(idea, BRIEF[idea.id]); });
+
 const REMIX_FORMATS = [
   "a one-page website", "a weekly WhatsApp message", "a printable sheet for the fridge",
   "a tiny phone app", "a shared calendar", "a spreadsheet anyone can open",
