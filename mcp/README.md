@@ -140,8 +140,9 @@ In `opencode.json` (project or global):
 ### Anything that speaks HTTP
 
 Start `node server.mjs --port 4173`, then point the client at
-`http://127.0.0.1:4173/mcp`. Send `initialize` first; reuse the returned
-`Mcp-Session-Id` header on later requests. A bare `GET /mcp` returns `405` with
+`http://127.0.0.1:4173/mcp`. Send `initialize` first; the server returns an
+`Mcp-Session-Id`, but it is informational — this implementation accepts any value or none,
+and `DELETE` is a no-op. A bare `GET /mcp` returns `405` with
 `Allow: POST, DELETE, OPTIONS` — this server answers POST only, it does not hold an SSE
 stream open.
 
@@ -150,7 +151,7 @@ stream open.
 The test suite drives both transports end to end:
 
 ```powershell
-node tools\test-mcp.mjs            # 24 checks: data, stdio, writes on a temp copy, HTTP
+node tools\test-mcp.mjs            # 31 checks: data, stdio, writes on a temp copy, HTTP
 node tools\test-mcp.mjs --data-only
 ```
 
@@ -166,6 +167,8 @@ A one-line manual check:
 - **No auth, localhost by default.** `server.mjs` binds `127.0.0.1`. Do not expose it to a
   network without putting an authenticating proxy in front; `ideas_add` and `ideas_update`
   write to the file on disk.
+- **No CORS.** `/mcp` sends no cross-origin headers, so a page on another origin cannot drive
+  it; browsers fail the preflight. Connect from an agent, CLI or local page instead.
 - **GitHub Pages cannot run this.** Static hosting has no Node process, so the public page
   is data-driven but read-only. MCP needs `node mcp/server.mjs` next to a local checkout, or
   `node server.mjs` on a machine you control.

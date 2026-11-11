@@ -283,6 +283,16 @@ async function testWrites() {
       assert.equal(data.ideas.find((i) => i.id === id).tagline, "Updated by the test.");
     });
 
+    const before = fs.readFileSync(tmp);
+    const refused = await client.request("tools/call", {
+      name: "ideas_update",
+      arguments: { id, area: "nowhere" }
+    });
+    await test("a rejected update leaves the file byte-identical", () => {
+      assert.equal(refused.isError, true);
+      assert.ok(before.equals(fs.readFileSync(tmp)), "file changed after a rejected write");
+    });
+
     const bad = await client.request("tools/call", {
       name: "ideas_add",
       arguments: {
@@ -365,6 +375,10 @@ async function testHttp() {
       assert.ok(init.headers.get("mcp-session-id"));
     });
 
+    await test("POST /mcp sends no CORS headers", () => {
+      assert.equal(init.headers.get("access-control-allow-origin"), null);
+    });
+
     const session = init.headers.get("mcp-session-id");
     const got = await rpc(base, "tools/call", { name: "ideas_get", arguments: { id: "meter-reader" } }, { "Mcp-Session-Id": session });
     await test("POST /mcp calls a tool", () => {
@@ -375,6 +389,52 @@ async function testHttp() {
     await test("GET /mcp is rejected clearly", () => {
       assert.equal(getMcp.status, 405);
       assert.equal(getMcp.headers.get("allow"), "POST, DELETE, OPTIONS");
+    });
+
+    const badJson = await fetch(`${base}/mcp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{"
+    });
+    await test("invalid JSON returns 400 with a parse error", async () => {
+      assert.equal(badJson.status, 400);
+      const body = await badJson.json();
+      assert.equal(body.error.code, -32700);
+    });
+
+    const notification = await fetch(`${base}/mcp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })
+    });
+    await test("a notification returns 202 and no body", () => {
+      assert.equal(notification.status, 202);
+    });
+
+    const batch = await fetch(`${base}/mcp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([
+        { jsonrpc: "2.0", id: 1, method: "ping" },
+        { jsonrpc: "2.0", id: 2, method: "tools/list" }
+      ])
+    });
+    await test("a batch is answered with an array", async () => {
+      const replies = await batch.json();
+      assert.ok(Array.isArray(replies));
+      assert.equal(replies.length, 2);
+      assert.deepEqual(replies[0].result, {});
+      assert.ok(replies[1].result.tools);
+    });
+
+    const backslash = await fetch(`${base}/x%5C..%5C.git%5Cconfig`);
+    await test("encoded backslashes cannot escape the folder", () => {
+      assert.equal(backslash.status, 403);
+    });
+
+    const upperMcp = await fetch(`${base}/MCP/core.mjs`);
+    await test("case does not expose the mcp folder", () => {
+      assert.equal(upperMcp.status, 403);
     });
 
     const validate = await fetch(`${base}/api/validate`);

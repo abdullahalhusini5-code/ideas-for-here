@@ -44,18 +44,15 @@ const MIME = {
   ".md": "text/markdown; charset=utf-8"
 };
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, HEAD, POST, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Mcp-Session-Id, MCP-Protocol-Version, Last-Event-ID",
-  "Access-Control-Expose-Headers": "Mcp-Session-Id, MCP-Protocol-Version"
-};
+/* No CORS headers on purpose: the page is same-origin, and a cross-site POST
+ * of application/json triggers a preflight that now fails, so a random web
+ * page cannot drive /mcp or write to the catalog through the local server.
+ * Non-browser MCP clients are unaffected. */
 
 function send(res, status, body, headers = {}) {
   const payload = Buffer.isBuffer(body) ? body : Buffer.from(body || "", "utf8");
   res.writeHead(status, {
     "Content-Length": payload.length,
-    ...CORS,
     ...headers
   });
   if (res.req && res.req.method === "HEAD") res.end();
@@ -76,41 +73,58 @@ function resolveStatic(urlPath) {
   } catch {
     return null;
   }
-  if (decoded.includes("\0")) return null;
+  /* A backslash is a path separator on Windows and must never reach resolve(). */
+  if (decoded.includes("\0") || decoded.includes("\\")) return null;
   const rel = decoded === "/" ? "index.html" : decoded.replace(/^\/+/, "");
-  if (!rel || rel.startsWith(".") || rel.split("/").some((part) => part.startsWith("."))) return null;
-  if (/^(mcp|tools)(\/|$)/.test(rel)) return null;
+  const parts = rel.split("/");
+  const lower = rel.toLowerCase();
+  if (!rel || parts.some((part) => !part || part.startsWith("."))) return null;
+  if (/^(mcp|tools)(\/|$)/.test(lower)) return null;
   const full = path.resolve(ROOT, rel);
-  if (full !== ROOT && !full.startsWith(ROOT + path.sep)) return null;
+  const back = path.relative(ROOT, full);
+  if (!back || back.startsWith("..") || path.isAbsolute(back)) return null;
   return full;
 }
 
 function readBody(req, limit = 2_000_000) {
   return new Promise((resolve, reject) => {
     let size = 0;
+    let done = false;
     const chunks = [];
     req.on("data", (chunk) => {
+      if (done) return;
       size += chunk.length;
       if (size > limit) {
-        reject(new Error("request body too large"));
-        req.destroy();
+        done = true;
+        req.pause();
+        const err = new Error("request body too large");
+        err.code = "TOO_LARGE";
+        reject(err);
         return;
       }
       chunks.push(chunk);
     });
-    req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
-    req.on("error", reject);
+    req.on("end", () => {
+      if (done) return;
+      done = true;
+      resolve(Buffer.concat(chunks).toString("utf8"));
+    });
+    req.on("error", (err) => {
+      if (done) return;
+      done = true;
+      reject(err);
+    });
   });
 }
 
 async function handleMcp(req, res) {
   if (req.method === "OPTIONS") {
-    res.writeHead(204, CORS);
+    res.writeHead(204, { Allow: "POST, DELETE, OPTIONS" });
     res.end();
     return;
   }
   if (req.method === "DELETE") {
-    res.writeHead(204, CORS);
+    res.writeHead(204, { Allow: "POST, DELETE, OPTIONS" });
     res.end();
     return;
   }
@@ -123,7 +137,12 @@ async function handleMcp(req, res) {
   try {
     body = await readBody(req);
   } catch (err) {
-    json(res, 413, { jsonrpc: "2.0", id: null, error: { code: -32600, message: err.message } });
+    if (err.code === "TOO_LARGE") {
+      json(res, 413, { jsonrpc: "2.0", id: null, error: { code: -32600, message: err.message } });
+      req.resume(); /* drain so the client can read the 413 */
+      return;
+    }
+    json(res, 400, { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Could not read request body" } });
     return;
   }
 
@@ -131,7 +150,7 @@ async function handleMcp(req, res) {
   try {
     parsed = JSON.parse(body);
   } catch {
-    json(res, 200, { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } });
+    json(res, 400, { jsonrpc: "2.0", id: null, error: { code: -32700, message: "Parse error" } });
     return;
   }
 
@@ -143,9 +162,12 @@ async function handleMcp(req, res) {
 
   for (const message of messages) {
     if (!message || message.jsonrpc !== "2.0" || typeof message.method !== "string") {
-      if (message && message.id !== undefined) {
-        replies.push({ jsonrpc: "2.0", id: message.id, error: { code: -32600, message: "Invalid Request" } });
-      }
+      /* Every member gets an answer, including one with no usable id. */
+      replies.push({
+        jsonrpc: "2.0",
+        id: message && message.id !== undefined ? message.id : null,
+        error: { code: -32600, message: "Invalid Request" }
+      });
       continue;
     }
     if (message.method === "initialize") sawInitialize = true;
@@ -174,7 +196,7 @@ async function handleMcp(req, res) {
 
   if (!replies.length) {
     if (sawNotification) {
-      res.writeHead(202, { ...CORS, ...headers });
+      res.writeHead(202, headers);
       res.end();
       return;
     }
@@ -185,11 +207,21 @@ async function handleMcp(req, res) {
   json(res, 200, batch ? replies : replies[0], headers);
 }
 
-const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`);
+async function handleRequest(req, res) {
+  let url;
+  try {
+    url = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`);
+  } catch {
+    send(res, 400, "Bad request.\n", { "Content-Type": "text/plain; charset=utf-8" });
+    return;
+  }
 
   if (url.pathname === "/health") {
-    json(res, 200, { ok: true, readOnly: READ_ONLY, ideas: readCatalog().ideas.length });
+    try {
+      json(res, 200, { ok: true, readOnly: READ_ONLY, ideas: readCatalog().ideas.length });
+    } catch (err) {
+      json(res, 500, { ok: false, error: "Could not read ideas.json", detail: err.message });
+    }
     return;
   }
 
@@ -260,6 +292,16 @@ const server = http.createServer(async (req, res) => {
   } catch {
     send(res, 404, "Not found.\n", { "Content-Type": "text/plain; charset=utf-8" });
   }
+}
+
+const server = http.createServer((req, res) => {
+  handleRequest(req, res).catch((err) => {
+    if (!res.headersSent) {
+      json(res, 500, { error: "Internal error", detail: err && err.message });
+    } else {
+      res.destroy();
+    }
+  });
 });
 
 server.on("error", (err) => {

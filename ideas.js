@@ -20,7 +20,10 @@ window.catalogReady = (async () => {
     : ["ideas.json"];
   for (const url of sources) {
     try {
-      const res = await fetch(url, { cache: "no-store" });
+      const signal = typeof AbortSignal !== "undefined" && AbortSignal.timeout
+        ? AbortSignal.timeout(8000)
+        : undefined;
+      const res = await fetch(url, { cache: "no-store", signal });
       if (!res.ok) continue;
       const data = await res.json();
       if (!data || !Array.isArray(data.ideas) || !Array.isArray(data.areas)) {

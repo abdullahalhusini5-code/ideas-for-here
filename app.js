@@ -560,7 +560,8 @@
     {
       key: "area",
       title: "Which part of life should it touch?",
-      options: AREAS.map((a) => ({ id: a.id, label: a.label, hint: "" }))
+      /* Built on demand: the catalog arrives after this file is parsed. */
+      options: () => AREAS.map((a) => ({ id: a.id, label: a.label, hint: "" }))
     },
     {
       key: "time",
@@ -596,7 +597,8 @@
     opts.setAttribute("role", "group");
     opts.setAttribute("aria-label", q.title);
 
-    q.options.forEach((o, i) => {
+    const options = typeof q.options === "function" ? q.options() : q.options;
+    options.forEach((o, i) => {
       const b = el("button", "option");
       b.type = "button";
       b.dataset.value = o.id;

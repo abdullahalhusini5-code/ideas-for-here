@@ -30,8 +30,21 @@ export function readCatalog(file = DATA_FILE) {
 
 export function writeCatalog(data, file = DATA_FILE) {
   const tmp = `${file}.tmp-${process.pid}`;
-  fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + "\n", "utf8");
-  fs.renameSync(tmp, file);
+  let fd;
+  try {
+    fd = fs.openSync(tmp, "w");
+    fs.writeFileSync(fd, JSON.stringify(data, null, 2) + "\n", "utf8");
+    fs.fsyncSync(fd); /* the rename is atomic, but only fsync makes it durable */
+    fs.closeSync(fd);
+    fd = undefined;
+    fs.renameSync(tmp, file);
+  } catch (err) {
+    if (fd !== undefined) {
+      try { fs.closeSync(fd); } catch { /* already closed */ }
+    }
+    try { fs.unlinkSync(tmp); } catch { /* nothing to clean up */ }
+    throw err;
+  }
 }
 
 export function labelFor(iso) {

@@ -49,7 +49,7 @@ page fetches the catalog and browsers block that on `file://`.
 | `mcp/core.mjs` | Catalog access, validation, search, write rules, MCP tools/resources/prompts |
 | `mcp/server.mjs` | MCP over stdio, with `--read-only` |
 | `mcp/README.md` | Client configs for Claude Desktop/Code, Cursor, Codex, OpenCode; tool reference |
-| `tools/test-mcp.mjs` | 24 checks: catalog, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/test-mcp.mjs` | 31 checks: catalog, stdio, writes on a temp copy, HTTP API and MCP |
 | `tools/check-links.js` | Re-checks every external link in the catalog |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
 | `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
@@ -100,7 +100,7 @@ The hero figure, the "Thirty-one" in the intro and the catalog counter are all g
 from the catalog length at load, so the count needs no other edit. Then verify:
 
 ```powershell
-node tools\test-mcp.mjs        # shape, links, MCP, HTTP
+node tools\test-mcp.mjs        # catalog shape, MCP tools, HTTP API
 node tools\check-links.js      # every external URL returns 200
 ```
 
@@ -146,5 +146,6 @@ Text, the idea briefs and `ideas.json` are **CC BY 4.0**; the code is **MIT**. S
 `LICENSE`. Reuse is welcome with credit and a link back.
 
 The page sets no cookies, runs no analytics, loads no third-party scripts, and sends nothing
-about you anywhere. It makes exactly one same-origin request for the catalog. GitHub Pages
+about you anywhere. It makes one same-origin request for the catalog (a second, the JSON
+fallback, only if the first is unavailable). GitHub Pages
 still records standard server logs as the host; the in-page privacy note says so plainly.
