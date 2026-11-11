@@ -777,7 +777,7 @@ node tools\check-links.js</pre>
       name: "The conversation",
       role: "the agent surface",
       color: "#b23a2a",
-      body: "Eight tools, three resources and one planning prompt. Reads always work. Writes validate the whole catalog first, replace it atomically, and are refused in read-only mode.",
+      body: "Eight tools, three resources, one per-idea template and a planning prompt. Reads always work. Writes validate the whole catalog first, replace it atomically, and are refused in read-only mode.",
       facts: [["Tools", "8"], ["Transports", "stdio + HTTP"], ["Writes", "opt-in"]],
       files: ["mcp/core.mjs", "mcp/server.mjs", "mcp/README.md"]
     }
