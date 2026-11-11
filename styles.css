@@ -215,12 +215,18 @@ h1 em { font-style: italic; color: var(--accent); }
   display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 0;
 }
+.grid__note {
+  grid-column: 1 / -1; margin: 0; padding: 30px 4px;
+  border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px;
+}
+.grid__note--error { color: var(--accent-ink); }
 .card {
   border: 1px solid var(--rule);
   margin: -1px 0 0 -1px;
   padding: 24px 26px 20px; background: transparent;
   display: flex; flex-direction: column;
   transition: background .2s;
+  scroll-margin-top: 78px;
 }
 .card:hover { background: var(--paper-2); }
 .card--open { background: var(--paper-2); }

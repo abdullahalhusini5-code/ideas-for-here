@@ -1,0 +1,18 @@
+{
+  "name": "ideas-for-here",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A plain-English catalog of small local app ideas, with a zero-dependency MCP server.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "serve": "node server.mjs",
+    "mcp": "node mcp/server.mjs",
+    "mcp:readonly": "node mcp/server.mjs --read-only",
+    "test": "node tools/test-mcp.mjs",
+    "test:data": "node tools/test-mcp.mjs --data-only",
+    "check:links": "node tools/check-links.js"
+  }
+}

@@ -10,9 +10,7 @@ const failures = [];
 
 /* ---------- 1. catalog kit links ---------- */
 
-const { IDEAS } = new Function(
-  fs.readFileSync("ideas.js", "utf8") + "; return { IDEAS };"
-)();
+const { ideas: IDEAS } = JSON.parse(fs.readFileSync(path.resolve("ideas.json"), "utf8"));
 
 const kitLinks = [];
 IDEAS.forEach((idea) => {

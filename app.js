@@ -1,9 +1,20 @@
-/* Ideas for Here — all behaviour. No dependencies, no network requests. */
+/* Ideas for Here — all behaviour. No dependencies.
+ * The catalog is fetched once from /api/ideas (local server) or ideas.json. */
 (function () {
   "use strict";
 
+  /* Filled from the catalog before the UI renders. */
+  let IDEAS = [];
+  let AREAS = [];
+  let TIMES = [];
+  let LANES = [];
+  let REMIX_TOPICS = [];
+  let REMIX_FORMATS = [];
+  let REMIX_CONSTRAINTS = [];
+
   const $ = (sel, root) => (root || document).querySelector(sel);
   const el = (tag, cls) => { const n = document.createElement(tag); if (cls) n.className = cls; return n; };
+  const safeId = (s) => (window.CSS && CSS.escape ? CSS.escape(String(s)) : String(s).replace(/[^a-zA-Z0-9_-]/g, ""));
 
   const GOAL_TEXT = {
     ease:  "making daily life easier",
@@ -32,7 +43,8 @@
     answers: { goal: null, area: null, time: null, lane: null },
     qIndex: 0,
     remixSeed: 1,
-    open: new Set()
+    open: new Set(),
+    deepIdea: null
   };
 
   const byId = (list, id) => list.find((x) => x.id === id);
@@ -178,6 +190,54 @@
       (!state.lane || i.lanes.includes(state.lane)) &&
       matchesQuery(i)
     );
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Shareable state                                                     */
+  /* ------------------------------------------------------------------ */
+
+  function readUrlState() {
+    const params = new URLSearchParams(window.location.search);
+    const deep = params.get("idea");
+    if (deep) {
+      /* A link to one idea wins over filters, so that card always exists. */
+      state.deepIdea = deep;
+      state.area = null;
+      state.time = null;
+      state.lane = null;
+      state.query = "";
+    } else {
+      const area = params.get("area");
+      const time = params.get("time");
+      const lane = params.get("lane");
+      state.area = AREAS.some((a) => a.id === area) ? area : null;
+      state.time = TIMES.some((t) => t.id === time) ? time : null;
+      state.lane = LANES.some((l) => l.id === lane) ? lane : null;
+      state.query = (params.get("q") || "").slice(0, 80);
+    }
+    const search = $("#search");
+    if (search) search.value = state.query;
+  }
+
+  function syncUrl() {
+    const params = new URLSearchParams();
+    if (state.area) params.set("area", state.area);
+    if (state.time) params.set("time", state.time);
+    if (state.lane) params.set("lane", state.lane);
+    if (state.query) params.set("q", state.query);
+    const qs = params.toString();
+    history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}${location.hash}`);
+  }
+
+  function applyDeepLink() {
+    if (!state.deepIdea) return;
+    const id = state.deepIdea;
+    state.deepIdea = null;
+    const card = document.querySelector(`.card[data-id="${safeId(id)}"]`);
+    if (!card) return;
+    const btn = card.querySelector(".expander");
+    if (btn && btn.getAttribute("aria-expanded") !== "true") btn.click();
+    scrollToEl(card, "start");
   }
 
   function resetBrowse(area) {
@@ -387,6 +447,8 @@
       empty.textContent = "Nothing matches that combination. Clear a filter, or shuffle a brief below.";
       grid.appendChild(empty);
     }
+
+    syncUrl();
   }
 
   let searchTimer = null;
@@ -791,12 +853,53 @@
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  const total = IDEAS.length;
-  $("#fig-ideas").textContent = String(total);
-  const word = $("#fig-word");
-  if (word) word.textContent = capitalise(numberWord(total));
-  const bootCount = $("#count");
-  if (bootCount) bootCount.textContent = `${total} ideas`;
+  function showCatalogError(message) {
+    const grid = $("#grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    const note = el("p", "grid__note grid__note--error");
+    note.textContent = message;
+    grid.appendChild(note);
+    const count = $("#count");
+    if (count) count.textContent = "Catalog unavailable";
+  }
+
+  async function boot() {
+    const data = await window.catalogReady;
+    if (!data) {
+      showCatalogError(window.CATALOG_ERROR || "The catalog could not be loaded.");
+      return;
+    }
+
+    AREAS = data.areas || [];
+    TIMES = data.times || [];
+    LANES = data.lanes || [];
+    IDEAS = data.ideas || [];
+    const remix = data.remix || {};
+    REMIX_TOPICS = remix.topics || [];
+    REMIX_FORMATS = remix.formats || [];
+    REMIX_CONSTRAINTS = remix.constraints || [];
+
+    const total = IDEAS.length;
+    $("#fig-ideas").textContent = String(total);
+    const word = $("#fig-word");
+    if (word) word.textContent = capitalise(numberWord(total));
+    const bootCount = $("#count");
+    if (bootCount) bootCount.textContent = `${total} ideas`;
+
+    const stamp = $(".pagestamp time");
+    if (stamp && data.updated) {
+      stamp.dateTime = data.updated;
+      if (data.updatedLabel) stamp.textContent = data.updatedLabel;
+    }
+
+    readUrlState();
+    buildChips();
+    renderGrid();
+    renderRemix();
+    renderQuestion();
+    applyDeepLink();
+  }
 
   let resizeTimer = null;
   window.addEventListener("resize", () => {
@@ -804,8 +907,5 @@
     resizeTimer = setTimeout(placeSuggest, 120);
   });
 
-  buildChips();
-  renderGrid();
-  renderRemix();
-  renderQuestion();
+  boot();
 })();

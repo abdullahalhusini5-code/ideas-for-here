@@ -2,25 +2,39 @@
 
 Live at **https://abdullahalhusini5-code.github.io/ideas-for-here/**
 
-A static page that gives local people app and project ideas in plain English — browsable
-as a catalog, or narrowed by four questions. Every idea is a concrete brief with the first
-moves; where it fits, it also carries the free pieces to start: a data source, a pattern, a
-starter prompt, or a free place to publish. Each card states the time, build route, what you
-need and how many free pieces it holds before you open it; each kit adds who the idea helps
-and what to watch out for.
+A catalog of small apps and projects for ordinary local problems, in plain English. Browse
+all 31 briefs, narrow them with four questions, or open one card and get the first moves,
+what you need, and the free pieces that apply.
 
-No build step. No server. No API keys. No requests after the page loads.
+Every idea states the time it takes, how it gets built, who it helps and the honest catch.
+Filters live in the URL, so `?area=health`, `?time=weekend` and `?q=water` are shareable,
+and `?idea=garden-calendar` opens one brief directly.
+
+The catalog is a data file (`ideas.json`) fetched at load, and the same file is exposed as
+an **MCP server**, so any MCP-capable AI agent can search it, read a brief, or submit a new
+idea. No build step, no dependencies, no API keys, no accounts.
 
 ## Run it
 
-Any static file server works:
+Two ways, depending on what you want:
 
 ```powershell
+# 1. Static, like GitHub Pages: the page reads ideas.json, read-only
 python -m http.server 4173 --bind 127.0.0.1
-# open http://127.0.0.1:4173/
+#    open http://127.0.0.1:4173/
+
+# 2. Dynamic, with a live API and MCP: zero dependencies, Node 18+
+node server.mjs --port 4173
+#    page      http://127.0.0.1:4173/
+#    catalog   http://127.0.0.1:4173/api/ideas
+#    validate  http://127.0.0.1:4173/api/validate
+#    MCP       http://127.0.0.1:4173/mcp
 ```
 
-Opening `index.html` directly from disk also works.
+`npm run serve`, `npm run mcp` and `npm run mcp:readonly` wrap the same commands.
+
+Serve the folder over HTTP; opening `index.html` from disk no longer works, because the
+page fetches the catalog and browsers block that on `file://`.
 
 ## Files
 
@@ -28,50 +42,81 @@ Opening `index.html` directly from disk also works.
 |---|---|
 | `index.html` | Structure, copy, both modes, privacy/licence/accessibility notes |
 | `styles.css` | The whole visual system; variables at the top |
-| `ideas.js` | The catalog — 31 ideas, per-idea `helps`/`watch` briefs, and the remix word lists |
-| `app.js` | Filtering, ranking, questionnaire, remix, rendering, suggest-tile placement |
+| `ideas.json` | **The catalog**: 31 ideas with `helps`/`watch`, areas, times, lanes, remix lists |
+| `ideas.js` | Loader: fetches `/api/ideas` when the local server says it exists, else `ideas.json` |
+| `app.js` | Async boot, URL state, deep links, filtering, ranking, questionnaire, remix, rendering |
+| `server.mjs` | Local static server + `/api/ideas` + `/api/validate` + `/mcp` (Streamable HTTP) |
+| `mcp/core.mjs` | Catalog access, validation, search, write rules, MCP tools/resources/prompts |
+| `mcp/server.mjs` | MCP over stdio, with `--read-only` |
+| `mcp/README.md` | Client configs for Claude Desktop/Code, Cursor, Codex, OpenCode; tool reference |
+| `tools/test-mcp.mjs` | 24 checks: catalog, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/check-links.js` | Re-checks every external link in the catalog |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
 | `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
 | `404.html` | Static not-found page for GitHub Pages |
 | `favicon.svg`, `apple-touch-icon.png`, `og.png` | Icons and the 1200×630 share image |
-| `DESIGN.md` | Why it works this way, including the static-vs-AI decision |
-| `tools/check-links.js` | Re-checks every external link in the catalog |
+| `DESIGN.md` | Why it works this way, including the static-vs-AI and data/MCP decisions |
 
 ## Add or edit an idea
 
-Add an object to `IDEAS` in `ideas.js`, and its `helps` / `watch` text to the `BRIEF` map
-just above the remix lists (both fields may also be written inline on the idea):
+`ideas.json` is the single source of truth. The shortest safe route is the MCP server, which
+validates before it writes:
 
-```js
+```powershell
+node mcp\server.mjs
+# then call ideas_add or ideas_update from your agent;
+# reload http://127.0.0.1:4173/ to see it through /api/ideas
+```
+
+Or edit the JSON directly. One idea looks like this:
+
+```json
 {
-  id: "unique-slug",
-  title: "Short, concrete name",
-  tagline: "One line of promise.",
-  describe: "Two or three sentences, plain English, no developer words.",
-  area: "food",                       // food|money|home|family|health|learning|community|work
-  goals: ["ease", "learn"],           // ease|earn|help|learn
-  minutes: "weekend",                 // weekend|evenings|month
-  lanes: ["ready", "assistant"],      // ready|assistant|code
-  needs: ["A phone"],
-  steps: ["...", "...", "...", "..."],
-  helps: "Who this is actually for, in one or two sentences.",
-  watch: "The honest catch: what it will not do, or what the owner must keep doing.",
-  kit: {
-    data:    ["Name", "https://…", "why it's useful"],
-    prompt:  ["Name", "https://prompts.chat/prompts/<id>", "prompts.chat · Category"],
-    pattern: ["name", "https://github.com/Shubhamsaboo/awesome-llm-apps/tree/main/<folder>", "what it demonstrates"],
-    publish: ["Netlify", "https://www.netlify.com/", "Free static hosting"]
+  "id": "unique-slug",
+  "title": "Short, concrete name",
+  "tagline": "One line of promise.",
+  "describe": "Two or three sentences, plain English, no developer words.",
+  "area": "food",
+  "goals": ["ease", "learn"],
+  "minutes": "weekend",
+  "lanes": ["ready", "assistant"],
+  "needs": ["A phone"],
+  "steps": ["...", "...", "...", "..."],
+  "helps": "Who this is actually for, in one or two sentences.",
+  "watch": "The honest catch: what it will not do, or what the owner must keep doing.",
+  "kit": {
+    "data":    ["Name", "https://…", "why it's useful"],
+    "prompt":  ["Name", "https://prompts.chat/prompts/<id>", "prompts.chat · Category"],
+    "pattern": ["name", "https://github.com/Shubhamsaboo/awesome-llm-apps/tree/main/<folder>", "what it demonstrates"],
+    "publish": ["Netlify", "https://www.netlify.com/", "Free static hosting"]
   }
 }
 ```
 
-The idea count in the hero, the catalog counter and "Thirty-one" in the intro are all
-generated from `IDEAS.length` at load, so adding or removing an idea needs no other edit.
-Then check every external link:
+Allowed values: `area` is one of `food, money, home, family, health, learning, community,
+work`; `minutes` is `weekend, evenings, month`; `lanes` are `ready, assistant, code`.
+
+The hero figure, the "Thirty-one" in the intro and the catalog counter are all generated
+from the catalog length at load, so the count needs no other edit. Then verify:
 
 ```powershell
-node tools\check-links.js
+node tools\test-mcp.mjs        # shape, links, MCP, HTTP
+node tools\check-links.js      # every external URL returns 200
 ```
+
+## MCP
+
+Any MCP-capable agent can read the catalog. Full client configs are in
+[`mcp/README.md`](mcp/README.md).
+
+| Surface | What it gives an agent |
+|---|---|
+| Tools | `ideas_list`, `ideas_search`, `ideas_get`, `ideas_stats`, `ideas_suggest`, `ideas_validate`, `ideas_add`, `ideas_update` |
+| Resources | `ideas://catalog`, `ideas://areas`, `ideas://stats`, and `ideas://idea/{id}` |
+| Prompt | `plan-a-local-app` — turns one brief into a one-weekend plan |
+
+Reading is always available. Writing needs a local stdio or HTTP server without
+`--read-only`, and writes go to `ideas.json` on that machine.
 
 ## Provenance rules
 
@@ -82,7 +127,7 @@ node tools\check-links.js
 
 ## Deploy
 
-It is plain static files; any of these work with no configuration:
+The page is plain static files, so any host works with no configuration:
 
 - **Netlify** — drag the folder onto the dashboard, or `npx netlify-cli deploy --prod`
 - **Vercel** — `npx vercel --prod`
@@ -90,13 +135,16 @@ It is plain static files; any of these work with no configuration:
 - **GitHub Pages** — commit to a repo, enable Pages on the root
 - **Neocities** — upload the whole folder
 
-Nothing needs to be built before uploading.
+Static hosts serve the page and `ideas.json`. They cannot run `server.mjs`, so there is no
+`/api/ideas` and no `/mcp` there: the public page is data-driven but read-only, and a new
+idea needs a commit. Run `server.mjs` (or `node mcp/server.mjs` over stdio) on a machine you
+control for the live API and MCP.
 
 ## Licence and privacy
 
-Text, the idea briefs and `ideas.js` are **CC BY 4.0**; the code is **MIT**. See
+Text, the idea briefs and `ideas.json` are **CC BY 4.0**; the code is **MIT**. See
 `LICENSE`. Reuse is welcome with credit and a link back.
 
-The page sets no cookies, runs no analytics and makes no requests after load. GitHub
-Pages still records standard server logs as the host; the in-page privacy note says so
-plainly. No third-party scripts are loaded.
+The page sets no cookies, runs no analytics, loads no third-party scripts, and sends nothing
+about you anywhere. It makes exactly one same-origin request for the catalog. GitHub Pages
+still records standard server logs as the host; the in-page privacy note says so plainly.

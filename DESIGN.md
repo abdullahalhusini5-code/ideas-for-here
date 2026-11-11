@@ -17,7 +17,7 @@ for the place they live, in language they already speak, with a realistic first 
 |---|---|---|---|
 | LLM generates ideas per visit | Server + API key + per-visit money; rate limits; can hallucinate unusable ideas | High | No |
 | Model-driven ranking of a fixed catalog | Still needs a server and a key | Medium | No |
-| **Weighted scoring over a curated catalog** | **Zero. No server, no key, no requests after load** | **None** | **Yes** |
+| **Weighted scoring over a curated catalog** | **Zero. No server, no key, one data file** | **None** | **Yes** |
 
 Consequences that turned out to be features:
 
@@ -61,22 +61,21 @@ randomly — so the same answers always give the same page.
 
 ## The data model
 
-Each idea in `ideas.js`:
+`ideas.json` is the single source of truth — for the page, the checker and the MCP server.
+It holds:
 
-```js
+```json
 {
-  id, title, tagline, describe,        // plain English, no jargon
-  area,                                // one of 8
-  goals: [], minutes, lanes: [],       // ranking dimensions
-  needs: [], steps: [],                // what it takes, four moves
-  helps, watch,                        // who it is for; the honest catch
-  kit: { data, data2, prompt, prompt2, pattern, publish }
+  "updated": "2026-11-11", "updatedLabel": "11 November 2026",
+  "areas": [], "times": [], "lanes": [],
+  "ideas": [ { "id, title, tagline, describe, area, goals, minutes, lanes,
+               needs, steps, helps, watch, kit" } ],
+  "remix": { "topics": [], "formats": [], "constraints": [] }
 }
 ```
 
-`helps` and `watch` live in a separate `BRIEF` map keyed by idea id and are merged onto
-`IDEAS` at load, so thirty-one records stay skimmable. Both appear inside the build kit;
-`helps` also appears on the match result.
+`helps` and `watch` are fields on each idea, not a separate map: one record is one idea, so
+there is nothing to merge and nothing to drift. `helps` also appears on the match result.
 
 `kit` is the provenance requirement made concrete. Every entry it contains resolves to a
 real page — `app.js` renders a non-http value as plain text rather than a dead link:
@@ -90,6 +89,40 @@ Every external URL in the catalog was checked (HTTP 200) before publishing, and
 `tools/check-links.js` re-runs that check. Nothing on the page is invented; where an idea
 has no natural source, it simply has fewer kit entries rather than a fabricated one. Most
 ideas carry two or three pieces, not all four — the card shows what applies.
+
+### Loading, and why the page is dynamic
+
+`ideas.js` is a loader, not the catalog. At boot it fetches the catalog once:
+
+1. `/api/ideas` — only when the local server (`server.mjs`) is serving the page. That server
+   prepends one flag line to `ideas.js`, so the public static file never asks for an endpoint
+   that would 404 and never logs a console error.
+2. `ideas.json` — the static fallback used by GitHub Pages and any other static host.
+
+Both return the same document, so the page behaves identically; the API simply means a
+locally added idea appears on reload without a commit. If neither source answers, the grid
+shows a short note with the fix instead of an empty page.
+
+### Shareable state
+
+Filters and search are written to the URL with `history.replaceState`: `?area=`, `?time=`,
+`?lane=`, `?q=`. A filtered view can be bookmarked or sent to a neighbour. `?idea=<id>`
+opens that card, scrolls it into place below the header (`scroll-margin-top`), and then
+strips the parameter so a reload does not re-trigger the jump. Invalid ids and values are
+ignored rather than trusted, so a hand-edited URL degrades to the full catalog.
+
+### The MCP layer
+
+One handler, `mcp/core.mjs`, serves two transports: stdio (`mcp/server.mjs`) for desktop
+agents, and Streamable HTTP at `/mcp` from `server.mjs`. It exposes eight tools (list,
+search, get, stats, suggest, validate, add, update), three resources plus an
+`ideas://idea/{id}` template, and one planning prompt. Reads always work; writes validate
+the whole catalog first, then replace `ideas.json` atomically, and are refused under
+`--read-only`.
+
+This is the deliberate split: **the public page stays static and read-only, because GitHub
+Pages cannot run a Node process.** MCP requires a local checkout or a self-hosted
+`server.mjs`. Nothing about the visitor's page depends on that server being up.
 
 ## Content rules
 
@@ -131,6 +164,8 @@ body and muted text, and the whole thing still works at 320 px wide.
 ## What was deliberately left out
 
 - Accounts, saved favourites, analytics, cookies — none, and none needed.
+- A public write API — the hosted page has no server process, so catalog writes stay local
+  (MCP or a JSON edit); anyone can still file an idea through GitHub.
 - Arabic/RTL — the page is English by request. The type and layout choices are CSS
   variables, so a second language would be a translation pass, not a rewrite.
 - Live AI generation — see above. It can be added later as an optional endpoint without
@@ -150,3 +185,8 @@ sentence, the match aside lost a paragraph, and the footer's long provenance ess
 a three-column index. Legal text is the deliberate exception, and it is kept short enough
 to actually be read. The privacy note states the one thing the page cannot control —
 GitHub Pages keeps ordinary server logs as the host.
+
+The machine-readable surface is documented beside the code, not buried in the README:
+`mcp/README.md` carries client configs, the tool table, and the limits (localhost bind, one
+writer, reload to see writes). An agent reading this repository can connect without asking
+a person how.
