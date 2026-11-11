@@ -124,6 +124,16 @@ This is the deliberate split: **the public page stays static and read-only, beca
 Pages cannot run a Node process.** MCP requires a local checkout or a self-hosted
 `server.mjs`. Nothing about the visitor's page depends on that server being up.
 
+### The brain page
+
+`brain.html` is the one page about the system itself, and it is deliberately separate:
+its own styles and one inline script, no libraries, no network call. The scan is 54 contour
+rings; three axes are spatial and `w` is a fourth that pulls the four bands apart. The
+mapping is literal — memory (`ideas.json`), the page (`ideas.js`, `app.js`), the voice
+(`server.mjs`), the conversation (`mcp/core.mjs`) — so the diagram cannot drift far from the
+code without someone editing its `LAYERS` array. The guide beside it repeats the commands in
+`mcp/README.md`; when those change, both change.
+
 ## Content rules
 
 - Written for a neighbour, not a developer. No "API", "CRUD", "stack" in the visible copy.

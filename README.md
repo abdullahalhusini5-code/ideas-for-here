@@ -45,6 +45,7 @@ page fetches the catalog and browsers block that on `file://`.
 | `ideas.json` | **The catalog**: 31 ideas with `helps`/`watch`, areas, times, lanes, remix lists |
 | `ideas.js` | Loader: fetches `/api/ideas` when the local server says it exists, else `ideas.json` |
 | `app.js` | Async boot, URL state, deep links, filtering, ranking, questionnaire, remix, rendering |
+| `brain.html` | The four layers as an interactive scan, plus a seven-step MCP guide |
 | `server.mjs` | Local static server + `/api/ideas` + `/api/validate` + `/mcp` (Streamable HTTP) |
 | `mcp/core.mjs` | Catalog access, validation, search, write rules, MCP tools/resources/prompts |
 | `mcp/server.mjs` | MCP over stdio, with `--read-only` |
@@ -107,7 +108,8 @@ node tools\check-links.js      # every external URL returns 200
 ## MCP
 
 Any MCP-capable agent can read the catalog. Full client configs are in
-[`mcp/README.md`](mcp/README.md).
+[`mcp/README.md`](mcp/README.md); a step-by-step walkthrough, with the four-layer map,
+is on [`brain.html`](brain.html).
 
 | Surface | What it gives an agent |
 |---|---|

@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The brain, in four dimensions — Ideas for Here</title>
+<meta name="description" content="A four-layer map of Ideas for Here — catalog, page, server, MCP — drawn as an interactive brain scan, with a step-by-step guide to connecting the MCP server to an agent.">
+<link rel="canonical" href="https://abdullahalhusini5-code.github.io/ideas-for-here/brain.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --paper:      #f7f3ea;
+    --paper-2:    #fdfbf5;
+    --ink:        #17160f;
+    --ink-soft:   #454136;
+    --muted:      #6d675a;
+    --rule:       #d6cdb8;
+    --rule-soft:  #e6dfcd;
+    --accent:     #b23a2a;
+    --accent-ink: #8e2c1f;
+    --green:      #2f4a3a;
+    --ochre:      #a97c3f;
+    --slate:      #3f5a70;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+    --pad: clamp(18px, 4vw, 56px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(120% 60% at 50% -10%, #fdfbf5 0%, rgba(253,251,245,0) 60%);
+  }
+
+  a { color: inherit; }
+  a:hover { color: var(--accent-ink); }
+  code, pre { font-family: var(--mono); }
+  ::selection { background: #e9c9bd; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--pad); }
+
+  /* ---------- header ---------- */
+
+  .top { border-bottom: 1px solid var(--rule); }
+  .top__in {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 18px; padding: 16px 0;
+  }
+  .mark {
+    font-family: var(--serif); font-size: 19px; letter-spacing: -.01em;
+    text-decoration: none; white-space: nowrap;
+  }
+  .top nav { display: flex; align-items: center; gap: clamp(12px, 2vw, 24px); }
+  .top nav a {
+    text-decoration: none; font-size: 13.5px; color: var(--ink-soft);
+    border-bottom: 1px solid transparent; padding-bottom: 2px;
+  }
+  .top nav a:hover { border-color: var(--accent); }
+  .top nav a[aria-current="page"] { color: var(--ink); border-color: var(--ink); }
+
+  /* ---------- hero ---------- */
+
+  .hero { padding: clamp(44px, 7vw, 92px) 0 clamp(26px, 4vw, 44px); }
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    margin: 0; font-size: 11px; letter-spacing: .19em; text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .eyebrow::after { content: ""; width: 54px; height: 1px; background: var(--rule); }
+  h1 {
+    margin: 20px 0 0; font-family: var(--serif); font-weight: 400;
+    font-size: clamp(40px, 6.8vw, 82px); line-height: .97; letter-spacing: -.025em;
+    max-width: 16ch;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede {
+    margin: 24px 0 0; max-width: 58ch; color: var(--ink-soft);
+    font-size: clamp(16px, 1.6vw, 19px);
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 26px; margin: 28px 0 0;
+    font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- stage ---------- */
+
+  .stage {
+    display: grid; grid-template-columns: minmax(0, 1.16fr) minmax(300px, .84fr);
+    gap: clamp(20px, 3vw, 40px); align-items: start;
+    padding: 6px 0 clamp(44px, 6vw, 76px);
+    border-top: 1px solid var(--rule);
+    padding-top: clamp(24px, 3vw, 36px);
+  }
+
+  .scan { border: 1px solid var(--rule); background: var(--paper-2); }
+  .scan__frame { position: relative; }
+  canvas {
+    display: block; width: 100%;
+    height: clamp(400px, 58vh, 600px);
+    touch-action: none; cursor: grab; outline-offset: 3px;
+  }
+  canvas:active { cursor: grabbing; }
+  canvas:focus-visible { outline: 2px solid var(--accent); }
+  .hint {
+    position: absolute; left: 14px; bottom: 10px; margin: 0;
+    font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+    pointer-events: none;
+  }
+  .readout__tag {
+    position: absolute; top: 12px; left: 14px; margin: 0;
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+  }
+
+  .controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    padding: 12px 14px; border-top: 1px solid var(--rule);
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 1px solid var(--rule); background: transparent; color: var(--ink-soft);
+    padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .chip:hover { border-color: var(--ink-soft); color: var(--ink); }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--dot, var(--muted)); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .chip[aria-pressed="true"] i { box-shadow: 0 0 0 2px rgba(247, 243, 234, .22); }
+
+  .axis { display: flex; align-items: center; gap: 10px; flex: 1 1 170px; min-width: 150px; }
+  .axis label {
+    font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+  }
+  .axis output {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft); min-width: 34px; text-align: right;
+  }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 18px; background: transparent; cursor: ew-resize;
+  }
+  input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--rule); }
+  input[type="range"]::-moz-range-track { height: 1px; background: var(--rule); }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 13px; height: 13px; margin-top: -6px;
+    border-radius: 50%; background: var(--accent); border: 2px solid var(--paper-2);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 13px; height: 13px; border-radius: 50%; background: var(--accent);
+    border: 2px solid var(--paper-2);
+  }
+  .spin {
+    margin-left: auto; border: 1px solid var(--rule); background: transparent;
+    color: var(--ink-soft); font: inherit; font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; padding: 6px 10px; cursor: pointer;
+  }
+  .spin:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+  .readout { border-top: 2px solid var(--ink); padding-top: 16px; }
+  .readout__num {
+    margin: 0; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted);
+  }
+  .readout h2 {
+    margin: 6px 0 0; font-family: var(--serif); font-weight: 400;
+    font-size: clamp(30px, 3.4vw, 42px); line-height: 1.02; letter-spacing: -.015em;
+  }
+  .readout__role {
+    margin: 8px 0 0; font-size: 11px; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--accent-ink);
+  }
+  .readout p.body { margin: 16px 0 0; color: var(--ink-soft); font-size: 15.5px; }
+
+  .facts { margin: 20px 0 0; border-top: 1px solid var(--rule-soft); }
+  .facts div {
+    display: flex; justify-content: space-between; gap: 14px;
+    padding: 8px 0; border-bottom: 1px solid var(--rule-soft);
+  }
+  .facts dt { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .facts dd { margin: 0; font-family: var(--mono); font-size: 12px; color: var(--ink); text-align: right; }
+
+  .files { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; }
+  .files code {
+    background: #efe8d8; border: 1px solid var(--rule);
+    padding: 3px 7px; font-size: 11.5px; color: var(--ink-soft);
+  }
+
+  .caption { margin: 14px 0 0; font-size: 12.5px; color: var(--muted); }
+
+  /* ---------- sections ---------- */
+
+  .section { padding: clamp(46px, 6vw, 84px) 0; border-top: 1px solid var(--rule); }
+  .section__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-bottom: clamp(22px, 3vw, 36px);
+  }
+  .kicker {
+    margin: 0; font-size: 10.5px; letter-spacing: .19em;
+    text-transform: uppercase; color: var(--accent-ink);
+  }
+  h2.big {
+    margin: 8px 0 0; font-family: var(--serif); font-weight: 400;
+    font-size: clamp(30px, 4vw, 50px); line-height: 1.02; letter-spacing: -.02em;
+  }
+  .section__head p.aside { margin: 0; max-width: 38ch; color: var(--muted); font-size: 13.5px; }
+
+  .layers {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0; border-top: 1px solid var(--rule);
+  }
+  .layer {
+    padding: 20px 20px 24px 0; border-bottom: 1px solid var(--rule);
+  }
+  .layer + .layer { padding-left: 20px; border-left: 1px solid var(--rule); }
+  .layer__n {
+    font-family: var(--serif); font-size: 13px; color: var(--accent); letter-spacing: .08em;
+  }
+  .layer h3 {
+    margin: 8px 0 0; font-family: var(--serif); font-weight: 400; font-size: 24px; letter-spacing: -.01em;
+  }
+  .layer p { margin: 8px 0 0; font-size: 13.5px; color: var(--ink-soft); }
+  .layer code { font-size: 11.5px; color: var(--accent-ink); }
+
+  /* ---------- guide ---------- */
+
+  .guide { background: linear-gradient(180deg, rgba(237, 229, 213, .35), rgba(237, 229, 213, 0) 220px); }
+  .steps { list-style: none; margin: 0; padding: 0; }
+  .step {
+    display: grid; grid-template-columns: 62px minmax(0, 1fr);
+    gap: clamp(14px, 3vw, 34px);
+    padding: clamp(26px, 3.4vw, 40px) 0;
+    border-top: 1px solid var(--rule);
+  }
+  .step:first-child { border-top: 0; padding-top: 0; }
+  .step__n {
+    font-family: var(--serif); font-size: clamp(30px, 3.4vw, 40px);
+    line-height: 1; color: var(--accent); padding-top: 2px;
+  }
+  .step h3 { margin: 0 0 6px; font-size: 18px; font-weight: 600; letter-spacing: -.005em; }
+  .step > div > p { margin: 0 0 12px; color: var(--ink-soft); max-width: 70ch; }
+  .step p:last-child { margin-bottom: 0; }
+  .step code.inline {
+    background: #efe8d8; border: 1px solid var(--rule);
+    padding: 1px 5px; font-size: 12.5px; white-space: nowrap;
+  }
+
+  .code {
+    position: relative; background: #17160f; color: #efe8d8;
+    margin: 12px 0 0; border: 1px solid #17160f;
+  }
+  .code pre {
+    margin: 0; padding: 16px 18px; overflow-x: auto;
+    font-size: 12.5px; line-height: 1.7; tab-size: 2;
+  }
+  .code--tagged pre { padding-top: 34px; }
+  .code__tag {
+    position: absolute; top: 10px; left: 18px; margin: 0;
+    font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+    color: rgba(239, 232, 216, .45);
+  }
+  .copy {
+    position: absolute; top: 8px; right: 8px;
+    border: 1px solid rgba(239, 232, 216, .28); background: rgba(239, 232, 216, .08);
+    color: #efe8d8; font: inherit; font-size: 10.5px; letter-spacing: .08em;
+    text-transform: uppercase; padding: 4px 8px; cursor: pointer;
+  }
+  .copy:hover { background: rgba(239, 232, 216, .18); }
+  .copy:focus-visible { outline: 2px solid #e2a08f; outline-offset: 1px; }
+
+  .note {
+    margin: 14px 0 0; padding: 2px 0 2px 14px;
+    border-left: 2px solid var(--accent); color: var(--ink-soft); font-size: 13.5px; max-width: 70ch;
+  }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 2px; margin: 16px 0 0; border-bottom: 1px solid var(--rule); }
+  .tabs button {
+    border: 0; border-bottom: 2px solid transparent; background: none;
+    color: var(--muted); font: inherit; font-size: 12.5px; padding: 8px 10px; cursor: pointer;
+  }
+  .tabs button:hover { color: var(--ink); }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-color: var(--accent); }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .tabpanel { padding-top: 2px; }
+  .tabpanel p { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+
+  .prompts { margin: 12px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--rule-soft); }
+  .prompts li {
+    padding: 11px 0 11px 26px; border-bottom: 1px solid var(--rule-soft);
+    position: relative; color: var(--ink-soft); font-size: 14.5px;
+  }
+  .prompts li::before {
+    content: "“"; position: absolute; left: 2px; top: 4px;
+    font-family: var(--serif); font-size: 26px; color: var(--accent); line-height: 1;
+  }
+  .prompts b { color: var(--ink); font-weight: 600; }
+
+  .ref { margin: 18px 0 0; border-top: 1px solid var(--rule); }
+  .ref div {
+    display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px;
+    padding: 10px 0; border-bottom: 1px solid var(--rule-soft); font-size: 13px;
+  }
+  .ref dt { color: var(--muted); margin: 0; }
+  .ref dd { margin: 0; }
+  .ref code { font-size: 12px; color: var(--ink); }
+
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); }
+  .split h3 { margin: 0 0 8px; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .split p { margin: 0 0 12px; color: var(--ink-soft); font-size: 14px; }
+
+  /* ---------- footer ---------- */
+
+  footer { border-top: 1px solid var(--rule); padding: 34px 0 48px; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 18px; align-items: baseline; }
+  .foot p { margin: 0; font-size: 13px; color: var(--muted); }
+  .foot nav { display: flex; flex-wrap: wrap; gap: 18px; }
+  .foot nav a { font-size: 13px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
+  .foot nav a:hover { border-color: var(--accent); }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 980px) {
+    .stage { grid-template-columns: minmax(0, 1fr); }
+    .readout { position: static; }
+    .layers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .layer:nth-child(3) { padding-left: 0; border-left: 0; }
+    .layer:nth-child(2) { border-left: 1px solid var(--rule); }
+    .split { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @media (max-width: 560px) {
+    body { font-size: 16px; }
+    .top__in { flex-wrap: wrap; }
+    .step { grid-template-columns: 40px minmax(0, 1fr); }
+    .step code.inline { white-space: normal; overflow-wrap: anywhere; }
+    .layers { grid-template-columns: minmax(0, 1fr); }
+    .layer, .layer + .layer { padding-left: 0; border-left: 0; }
+    .ref div { grid-template-columns: 96px minmax(0, 1fr); }
+    .spin { margin-left: 0; }
+    canvas { height: clamp(340px, 52vh, 460px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  @media print {
+    .controls, .tabs, .copy, .top nav { display: none !important; }
+    .tabpanel[hidden] { display: block !important; }
+    .stage { grid-template-columns: 1fr; }
+    canvas { height: 360px; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="mark" href="index.html">Ideas for Here</a>
+    <nav aria-label="Pages">
+      <a href="index.html">The catalog</a>
+      <a href="#mcp">MCP guide</a>
+      <a href="https://github.com/abdullahalhusini5-code/ideas-for-here" rel="noopener">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <p class="eyebrow">Anatomy of a small machine</p>
+    <h1>The brain, in four dimensions.</h1>
+    <p class="lede">
+      Thirty-one ideas, one page, one optional server, and a conversation with an agent.
+      Turn the scan, then pull the fourth axis: the brain unfolds from memory to conversation,
+      and each layer names the files that do the work.
+    </p>
+    <div class="meta">
+      <span><b>4</b> layers</span>
+      <span><b>31</b> ideas</span>
+      <span><b>8</b> MCP tools</span>
+      <span><b>0</b> dependencies</span>
+      <span><b>0</b> third-party scripts</span>
+    </div>
+  </section>
+
+  <section class="wrap stage" aria-label="The four-layer brain scan">
+    <div class="scan">
+      <div class="scan__frame">
+        <p class="readout__tag" id="scan-tag">Axial scan · y −1 → +1</p>
+        <canvas id="brain" tabindex="0" role="img"
+          aria-label="A rotating brain made of horizontal contour slices. Four layers are coloured: memory at the base, the page above it, the voice, and the conversation at the top. Drag to rotate, or use the arrow keys."></canvas>
+        <p class="hint">Drag to turn · arrow keys rotate</p>
+      </div>
+      <div class="controls">
+        <button class="chip" type="button" data-layer="0" aria-pressed="true" style="--dot:#b07f35"><i></i>Memory</button>
+        <button class="chip" type="button" data-layer="1" aria-pressed="false" style="--dot:#3c6b4f"><i></i>Page</button>
+        <button class="chip" type="button" data-layer="2" aria-pressed="false" style="--dot:#40687f"><i></i>Voice</button>
+        <button class="chip" type="button" data-layer="3" aria-pressed="false" style="--dot:#b23a2a"><i></i>Conversation</button>
+        <div class="axis">
+          <label for="w">w</label>
+          <input id="w" type="range" min="0" max="100" value="0" step="1"
+            aria-describedby="w-help">
+          <output id="w-out" for="w">0.00</output>
+        </div>
+        <button class="spin" id="spin" type="button" aria-pressed="true">Pause</button>
+      </div>
+    </div>
+
+    <aside class="readout" id="readout" aria-live="polite">
+      <p class="readout__num" id="ro-num">Layer 01 / 04</p>
+      <h2 id="ro-title">Memory</h2>
+      <p class="readout__role" id="ro-role">the catalog</p>
+      <p class="body" id="ro-body"></p>
+      <noscript><p class="body">The scan is drawn with JavaScript. The four layers are described just below.</p></noscript>
+      <dl class="facts" id="ro-facts"></dl>
+      <div class="files" id="ro-files"></div>
+    </aside>
+  </section>
+
+  <section class="wrap section" aria-labelledby="layers-head">
+    <div class="section__head">
+      <div>
+        <p class="kicker">What the four layers are</p>
+        <h2 class="big" id="layers-head">One file, three things that read it.</h2>
+      </div>
+      <p class="aside">The scan is architecture, not anatomy. Colour is the only claim: where a fact lives, and who is allowed to change it.</p>
+    </div>
+
+    <div class="layers">
+      <article class="layer">
+        <p class="layer__n">01</p>
+        <h3>Memory</h3>
+        <p><code>ideas.json</code> — every brief, area, time bucket and free piece. The only source of truth.</p>
+      </article>
+      <article class="layer">
+        <p class="layer__n">02</p>
+        <h3>The page</h3>
+        <p><code>ideas.js</code> loads it; <code>app.js</code> filters, ranks, renders, and writes state into the URL.</p>
+      </article>
+      <article class="layer">
+        <p class="layer__n">03</p>
+        <h3>The voice</h3>
+        <p><code>server.mjs</code> — optional. Serves the page, a live catalog API, and <code>/mcp</code>.</p>
+      </article>
+      <article class="layer">
+        <p class="layer__n">04</p>
+        <h3>The conversation</h3>
+        <p><code>mcp/core.mjs</code> — eight tools and three resources over stdio or HTTP.</p>
+      </article>
+    </div>
+    <p class="caption" id="w-help">
+      <b>How to read the fourth dimension:</b> the scan always has three spatial axes. The slider is
+      <code>w</code>, a fourth axis that separates the layers and moves attention from memory (0) to
+      conversation (1). It is a way to see the same object from the inside, not a fifth file.
+    </p>
+  </section>
+
+  <section class="wrap section guide" id="mcp" aria-labelledby="mcp-head">
+    <div class="section__head">
+      <div>
+        <p class="kicker">Connect an agent</p>
+        <h2 class="big" id="mcp-head">The MCP server, step by step.</h2>
+      </div>
+      <p class="aside">Seven steps, about five minutes. Reading needs no permissions; writing needs you to drop one flag and mean it.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step">
+        <p class="step__n">1</p>
+        <div>
+          <h3>Check Node</h3>
+          <p>You need Node 18 or newer. Nothing else — no packages, no keys.</p>
+          <div class="code">
+            <pre><code>node -v</code></pre>
+            <button class="copy" type="button" data-copy="c-node">Copy</button>
+          </div>
+          <pre id="c-node" hidden>node -v</pre>
+          <p>If that prints <code class="inline">v18</code> or higher, you are ready. If not, install the current LTS from <a href="https://nodejs.org" rel="noopener">nodejs.org</a>.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__n">2</p>
+        <div>
+          <h3>Stand in the project folder</h3>
+          <p>Open a terminal where <code class="inline">ideas.json</code> lives. The server resolves the catalog relative to itself, so the folder matters, not the terminal.</p>
+          <div class="code">
+            <pre><code>cd C:\path\to\ideas-for-here</code></pre>
+            <button class="copy" type="button" data-copy="c-cd">Copy</button>
+          </div>
+          <pre id="c-cd" hidden>cd C:\path\to\ideas-for-here</pre>
+          <p class="note">Use your real path. In the rest of this guide, replace <code class="inline">C:\path\to\ideas-for-here</code> with it.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__n">3</p>
+        <div>
+          <h3>Start the server</h3>
+          <p>This serves the page, a live catalog, and the MCP endpoint on one port. Leave the terminal open.</p>
+          <div class="code">
+            <pre><code>node server.mjs --port 4173</code></pre>
+            <button class="copy" type="button" data-copy="c-serve">Copy</button>
+          </div>
+          <pre id="c-serve" hidden>node server.mjs --port 4173</pre>
+          <p>Open <a href="http://127.0.0.1:4173/" rel="noopener">127.0.0.1:4173</a> to confirm the catalog loads. The same process answers <code class="inline">/api/ideas</code> and <code class="inline">/mcp</code>.</p>
+          <p class="note">Add <code class="inline">--read-only</code> to refuse every write. Do that for a first run, or when lending the screen to someone.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__n">4</p>
+        <div>
+          <h3>Point your agent at it</h3>
+          <p>Pick your client. All four start the same process over stdio; the HTTP tab is for clients that connect to a URL instead.</p>
+
+          <div class="tabs" role="tablist" aria-label="Client configuration">
+            <button type="button" role="tab" id="tab-claude" aria-controls="panel-claude" aria-selected="true">Claude Desktop</button>
+            <button type="button" role="tab" id="tab-cursor" aria-controls="panel-cursor" aria-selected="false">Cursor</button>
+            <button type="button" role="tab" id="tab-codex" aria-controls="panel-codex" aria-selected="false">Codex</button>
+            <button type="button" role="tab" id="tab-opencode" aria-controls="panel-opencode" aria-selected="false">OpenCode</button>
+            <button type="button" role="tab" id="tab-http" aria-controls="panel-http" aria-selected="false">HTTP</button>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-claude" aria-labelledby="tab-claude">
+            <p>Edit <code class="inline">%APPDATA%\Claude\claude_desktop_config.json</code>, then restart Claude Desktop.</p>
+            <div class="code code--tagged">
+              <p class="code__tag">claude_desktop_config.json</p>
+              <pre><code>{
+  "mcpServers": {
+    "ideas-for-here": {
+      "command": "node",
+      "args": [
+        "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+        "--read-only"
+      ]
+    }
+  }
+}</code></pre>
+              <button class="copy" type="button" data-copy="c-claude">Copy</button>
+            </div>
+            <pre id="c-claude" hidden>{
+  "mcpServers": {
+    "ideas-for-here": {
+      "command": "node",
+      "args": [
+        "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+        "--read-only"
+      ]
+    }
+  }
+}</pre>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-cursor" aria-labelledby="tab-cursor" hidden>
+            <p>Create <code class="inline">.cursor\mcp.json</code> in a project, or <code class="inline">%USERPROFILE%\.cursor\mcp.json</code> for every project.</p>
+            <div class="code code--tagged">
+              <p class="code__tag">.cursor\mcp.json</p>
+              <pre><code>{
+  "mcpServers": {
+    "ideas-for-here": {
+      "command": "node",
+      "args": [
+        "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+        "--read-only"
+      ]
+    }
+  }
+}</code></pre>
+              <button class="copy" type="button" data-copy="c-cursor">Copy</button>
+            </div>
+            <pre id="c-cursor" hidden>{
+  "mcpServers": {
+    "ideas-for-here": {
+      "command": "node",
+      "args": [
+        "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+        "--read-only"
+      ]
+    }
+  }
+}</pre>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-codex" aria-labelledby="tab-codex" hidden>
+            <p>Add this block to <code class="inline">~/.codex/config.toml</code>.</p>
+            <div class="code code--tagged">
+              <p class="code__tag">config.toml</p>
+              <pre><code>[mcp_servers.ideas-for-here]
+command = "node"
+args = [
+  "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+  "--read-only"
+]</code></pre>
+              <button class="copy" type="button" data-copy="c-codex">Copy</button>
+            </div>
+            <pre id="c-codex" hidden>[mcp_servers.ideas-for-here]
+command = "node"
+args = [
+  "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+  "--read-only"
+]</pre>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-opencode" aria-labelledby="tab-opencode" hidden>
+            <p>Add this to <code class="inline">opencode.json</code>, project or global.</p>
+            <div class="code code--tagged">
+              <p class="code__tag">opencode.json</p>
+              <pre><code>{
+  "mcp": {
+    "ideas-for-here": {
+      "type": "local",
+      "command": [
+        "node",
+        "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+        "--read-only"
+      ],
+      "enabled": true
+    }
+  }
+}</code></pre>
+              <button class="copy" type="button" data-copy="c-opencode">Copy</button>
+            </div>
+            <pre id="c-opencode" hidden>{
+  "mcp": {
+    "ideas-for-here": {
+      "type": "local",
+      "command": [
+        "node",
+        "C:\\path\\to\\ideas-for-here\\mcp\\server.mjs",
+        "--read-only"
+      ],
+      "enabled": true
+    }
+  }
+}</pre>
+          </div>
+
+          <div class="tabpanel" role="tabpanel" id="panel-http" aria-labelledby="tab-http" hidden>
+            <p>With <code class="inline">node server.mjs</code> running, connect to the URL instead of spawning a process. Example for Claude Code:</p>
+            <div class="code">
+              <pre><code>claude mcp add --transport http ideas-http http://127.0.0.1:4173/mcp</code></pre>
+              <button class="copy" type="button" data-copy="c-http">Copy</button>
+            </div>
+            <pre id="c-http" hidden>claude mcp add --transport http ideas-http http://127.0.0.1:4173/mcp</pre>
+            <p>It answers POST only — no SSE stream — and sends no CORS headers, so another web page cannot call it. Non-browser clients are unaffected.</p>
+          </div>
+
+          <p class="note">Keep the backslashes doubled inside JSON. If the client cannot find <code class="inline">node</code>, use its absolute path (<code class="inline">where node</code> shows it).</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__n">5</p>
+        <div>
+          <h3>Ask it something real</h3>
+          <p>The agent now has eight tools. These three exercises cover search, a full brief, and the planning prompt:</p>
+          <ul class="prompts">
+            <li>“Search the catalog for ideas about <b>a water cut in my building</b>.” <span aria-hidden="true">→</span> <code class="inline">ideas_search</code></li>
+            <li>“Give me the full brief for <b>garden-calendar</b>, including the honest catch.” <span aria-hidden="true">→</span> <code class="inline">ideas_get</code></li>
+            <li>“Use <b>plan-a-local-app</b> for <b>meter-reader</b>, for a neighbour who is not technical.”</li>
+          </ul>
+          <p>Every answer includes a page link such as <code class="inline">?idea=meter-reader</code>, so the agent can send a person straight to the right card.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__n">6</p>
+        <div>
+          <h3>Let it write — only if you mean it</h3>
+          <p>Stop the server, remove <code class="inline">--read-only</code> from the client config or the command, and start again. Then ask:</p>
+          <ul class="prompts">
+            <li>“Add an idea about <b>the school run</b> — three steps, one free piece, plain English. Then validate the catalog.”</li>
+            <li>“Change the tagline of <b>garden-calendar</b> and show me what changed.”</li>
+          </ul>
+          <p>The write is validated first, then replaces <code class="inline">ideas.json</code> atomically. Refresh <code class="inline">127.0.0.1:4173</code> to see it — the page reads the live API when the server is running.</p>
+          <p class="note">Writes touch only your copy on disk. The public GitHub Pages site is read-only and always will be; a commit is still how a change reaches it.</p>
+        </div>
+      </li>
+
+      <li class="step">
+        <p class="step__n">7</p>
+        <div>
+          <h3>Prove it works</h3>
+          <p>Two checks, no framework, no network for the first one:</p>
+          <div class="code">
+            <pre><code>node tools\test-mcp.mjs
+node tools\check-links.js</code></pre>
+            <button class="copy" type="button" data-copy="c-test">Copy</button>
+          </div>
+          <pre id="c-test" hidden>node tools\test-mcp.mjs
+node tools\check-links.js</pre>
+          <p>Expect <b>31 passed, 0 failed</b> and <b>all links OK</b>. The suite drives both transports and writes only to temporary copies of the catalog.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="split" style="margin-top: clamp(30px, 4vw, 52px);">
+      <div>
+        <h3>What the agent can call</h3>
+        <dl class="ref">
+          <div><dt>Tools</dt><dd><code>ideas_list</code>, <code>ideas_search</code>, <code>ideas_get</code>, <code>ideas_stats</code>, <code>ideas_suggest</code>, <code>ideas_validate</code>, <code>ideas_add</code>, <code>ideas_update</code></dd></div>
+          <div><dt>Resources</dt><dd><code>ideas://catalog</code>, <code>ideas://areas</code>, <code>ideas://stats</code>, <code>ideas://idea/{id}</code></dd></div>
+          <div><dt>Prompt</dt><dd><code>plan-a-local-app</code> — one brief into a one-weekend plan</dd></div>
+        </dl>
+      </div>
+      <div>
+        <h3>Where it cannot go</h3>
+        <p>GitHub Pages runs no Node process. The public site is data-driven but read-only: the page fetches <code class="inline">ideas.json</code>, and there is no <code class="inline">/mcp</code> there.</p>
+        <p>MCP needs a local checkout or a host you control. Keep it on <code class="inline">127.0.0.1</code>; there is no authentication, and writing is a real file edit.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <p>Ideas for Here · four layers, one catalog.</p>
+    <nav aria-label="Footer">
+      <a href="index.html">The catalog</a>
+      <a href="https://github.com/abdullahalhusini5-code/ideas-for-here/blob/main/mcp/README.md" rel="noopener">MCP reference</a>
+      <a href="https://github.com/abdullahalhusini5-code/ideas-for-here" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<noscript>
+  <style>
+    .tabpanel[hidden] { display: block !important; }
+    .tabs, .controls, .copy { display: none !important; }
+  </style>
+</noscript>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------ */
+  /* Data                                                                */
+  /* ------------------------------------------------------------------ */
+
+  var LAYERS = [
+    {
+      name: "Memory",
+      role: "the catalog",
+      color: "#b07f35",
+      body: "Thirty-one briefs, and the words the page is allowed to use: eight areas, three time buckets, three build lanes. Nothing here is generated at visit time; it is the one file everything else reads.",
+      facts: [["Ideas", "31"], ["Free pieces", "57 links"], ["Updated", "11 Nov 2026"]],
+      files: ["ideas.json"]
+    },
+    {
+      name: "The page",
+      role: "what a visitor meets",
+      color: "#3c6b4f",
+      body: "Loads the catalog once, then filters, ranks and draws. Filters live in the address bar, so a view can be bookmarked or sent to a neighbour; one link can open a single card.",
+      facts: [["Catalog requests", "1"], ["Framework", "none"], ["Deep link", "?idea=<id>"]],
+      files: ["ideas.js", "app.js", "styles.css"]
+    },
+    {
+      name: "The voice",
+      role: "the local server",
+      color: "#40687f",
+      body: "Optional and local. Serves the same page plus a live catalog API and the MCP endpoint. On GitHub Pages this layer is absent, and the page falls back to reading ideas.json directly.",
+      facts: [["Node", "18+"], ["Default port", "4173"], ["Dependencies", "0"]],
+      files: ["server.mjs", "/api/ideas", "/mcp"]
+    },
+    {
+      name: "The conversation",
+      role: "the agent surface",
+      color: "#b23a2a",
+      body: "Eight tools, three resources and one planning prompt. Reads always work. Writes validate the whole catalog first, replace it atomically, and are refused in read-only mode.",
+      facts: [["Tools", "8"], ["Transports", "stdio + HTTP"], ["Writes", "opt-in"]],
+      files: ["mcp/core.mjs", "mcp/server.mjs", "mcp/README.md"]
+    }
+  ];
+
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var v = 0;            /* fourth axis, 0..1 */
+  var active = 0;       /* layer under the scan line */
+  var yaw = -0.55;
+  var pitch = 0.14;
+  var paused = reduced;
+  var dragging = false;
+  var last = { x: 0, y: 0 };
+
+  /* ------------------------------------------------------------------ */
+  /* Canvas setup                                                        */
+  /* ------------------------------------------------------------------ */
+
+  var canvas = document.getElementById("brain");
+  var ctx = canvas.getContext("2d");
+  var W = 0, H = 0, DPR = 1;
+
+  var SLICES = 54;
+  var RING = 92;
+  var slices = [];
+
+  for (var i = 0; i < SLICES; i += 1) {
+    var y = -1 + (2 * i) / (SLICES - 1);
+    var r = Math.sqrt(Math.max(0, 1 - y * y));
+    var layer = Math.min(3, Math.floor(((y + 1) / 2) * 4));
+    var pts = [];
+    for (var j = 0; j < RING; j += 1) {
+      var th = (j / RING) * Math.PI * 2;
+      var fold = 1 + 0.05 * Math.sin(6 * th + y * 8.5) + 0.028 * Math.sin(11 * th - y * 5.5);
+      var x = r * Math.cos(th) * fold;
+      var z = 0.76 * r * Math.sin(th) * fold;
+      var crease = 0.045 + 0.05 * (1 - Math.abs(y));
+      if (Math.abs(x) < crease) x = (x < 0 ? -1 : 1) * crease;
+      pts.push([x, y, z]);
+    }
+    slices.push({ y: y, layer: layer, pts: pts });
+  }
+
+  function resize() {
+    var rect = canvas.getBoundingClientRect();
+    DPR = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.max(1, rect.width);
+    H = Math.max(1, rect.height);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    draw(performance.now());
+  }
+
+  function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+
+  function smoothstep(t) {
+    t = clamp(t, 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+
+  function rgba(hex, alpha) {
+    var n = parseInt(hex.slice(1), 16);
+    return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + alpha + ")";
+  }
+
+  function projector() {
+    var wide = W > 560;
+    var scale = Math.min(W * (wide ? 0.60 : 0.80), H * 0.94) * 0.46;
+    var cx = W * (wide ? 0.43 : 0.5);
+    var cy = H * 0.52;
+    var cosY = Math.cos(yaw), sinY = Math.sin(yaw);
+    var cosP = Math.cos(pitch), sinP = Math.sin(pitch);
+    return function (x, y, z) {
+      var x1 = x * cosY + z * sinY;
+      var z1 = -x * sinY + z * cosY;
+      var y1 = y * cosP - z1 * sinP;
+      var z2 = y * sinP + z1 * cosP;
+      var p = 1 / (1 + z2 * 0.30);
+      return { x: cx + x1 * scale * p, y: cy - y1 * scale * p, depth: z2, near: p };
+    };
+  }
+
+  function draw(now) {
+    if (!ctx || !W) return;
+    ctx.clearRect(0, 0, W, H);
+
+    var sep = smoothstep((v - 0.18) / 0.76);
+    var gap = sep * Math.min(74, H * 0.115);
+    var squash = 1 - 0.34 * sep;
+    var proj = projector();
+    var cy = proj(0, 0, 0).y;
+    var segs = [];
+    var k, s, c;
+
+    /* Spread the bands apart as w rises: the conversation rises to the top,
+       memory sinks to the base, and each band flattens a little. */
+    function place(p, layer) {
+      return {
+        x: p.x,
+        y: cy + (p.y - cy) * squash + (1.5 - layer) * gap,
+        depth: p.depth,
+        near: p.near
+      };
+    }
+
+    for (k = 0; k < slices.length; k += 1) {
+      s = slices[k];
+      var pts = [];
+      for (var n = 0; n < s.pts.length; n += 1) {
+        pts.push(place(proj(s.pts[n][0], s.pts[n][1], s.pts[n][2]), s.layer));
+      }
+      c = place(proj(0, s.y, 0), s.layer);
+      segs.push({ slice: s, pts: pts, centre: c });
+    }
+
+    segs.sort(function (a, b) { return a.centre.depth - b.centre.depth; });
+
+    /* Soft pool of light behind the scan. */
+    var glow = ctx.createRadialGradient(W * 0.44, H * 0.52, 10, W * 0.44, H * 0.52, Math.max(W, H) * 0.5);
+    glow.addColorStop(0, "rgba(214, 205, 184, 0.28)");
+    glow.addColorStop(1, "rgba(214, 205, 184, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    for (k = 0; k < segs.length; k += 1) {
+      var seg = segs[k];
+      var colour = LAYERS[seg.slice.layer].color;
+      var isActive = seg.slice.layer === active;
+      var alpha = 0.34 * (0.45 + 0.55 * seg.centre.near);
+      var width = 0.65;
+
+      if (sep > 0.06) {
+        alpha = isActive ? 0.6 : 0.2;
+        width = isActive ? 1.2 : 0.65;
+      } else if (isActive) {
+        alpha += 0.12;
+        width = 1.05;
+      }
+
+      ctx.beginPath();
+      for (var m = 0; m < seg.pts.length; m += 1) {
+        if (m === 0) ctx.moveTo(seg.pts[m].x, seg.pts[m].y);
+        else ctx.lineTo(seg.pts[m].x, seg.pts[m].y);
+      }
+      ctx.closePath();
+
+      if (isActive && sep > 0.3) {
+        ctx.fillStyle = rgba(colour, 0.05);
+        ctx.fill();
+      }
+      ctx.strokeStyle = rgba(colour, alpha);
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    /* The scan line: where w currently sits. */
+    var band = place(proj(0, -0.75 + active * 0.5, 0), active);
+    band.y = clamp(band.y, 18, H - 18);
+    var railX = W > 560 ? W - 112 : W - 16;
+
+    ctx.save();
+    ctx.setLineDash([2, 5]);
+    ctx.strokeStyle = rgba(LAYERS[active].color, 0.5);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(16, band.y);
+    ctx.lineTo(railX - 12, band.y);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = "rgba(109, 103, 90, 0.9)";
+    ctx.font = '10px ui-monospace, "Cascadia Mono", Consolas, monospace';
+    ctx.textBaseline = "bottom";
+    var wLabel = "w " + v.toFixed(2);
+    var wWidth = ctx.measureText(wLabel).width;
+    ctx.fillStyle = "rgba(253, 251, 245, 0.92)";
+    ctx.fillRect(14, band.y - 17, wWidth + 6, 13);
+    ctx.fillStyle = "rgba(109, 103, 90, 0.9)";
+    ctx.fillText(wLabel, 16, band.y - 5);
+
+    /* Legend rail. */
+    if (W > 560) {
+      var top = H * 0.2;
+      var bottom = H * 0.8;
+      ctx.strokeStyle = "rgba(214, 205, 184, 0.9)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(railX, top - 12);
+      ctx.lineTo(railX, bottom + 12);
+      ctx.stroke();
+
+      for (var q = 0; q < LAYERS.length; q += 1) {
+        var li = LAYERS.length - 1 - q;
+        var ly = top + ((bottom - top) * q) / (LAYERS.length - 1);
+        var on = li === active;
+        ctx.beginPath();
+        ctx.arc(railX, ly, on ? 3.4 : 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = on ? LAYERS[li].color : rgba(LAYERS[li].color, 0.55);
+        ctx.fill();
+
+        ctx.font = (on ? "600 " : "400 ") + '10px "Segoe UI", system-ui, sans-serif';
+        ctx.fillStyle = on ? "#17160f" : "rgba(109, 103, 90, 0.9)";
+        ctx.textBaseline = "middle";
+        ctx.fillText(LAYERS[li].name.toUpperCase(), railX + 12, ly);
+      }
+    }
+
+    /* A faint pulse travelling up the midline while the brain is intact. */
+    if (sep < 0.22 && !reduced) {
+      var phase = (now * 0.00012) % 1;
+      var pulse = proj(0, -1 + phase * 2, 0);
+      if (pulse) {
+        ctx.beginPath();
+        ctx.arc(pulse.x, pulse.y, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(178, 58, 42, 0.55)";
+        ctx.fill();
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Interaction                                                         */
+  /* ------------------------------------------------------------------ */
+
+  var chipEls = [].slice.call(document.querySelectorAll(".chip[data-layer]"));
+  var slider = document.getElementById("w");
+  var out = document.getElementById("w-out");
+  var spinBtn = document.getElementById("spin");
+
+  function renderReadout() {
+    var L = LAYERS[active];
+    document.getElementById("ro-num").textContent = "Layer 0" + (active + 1) + " / 04";
+    document.getElementById("ro-title").textContent = L.name;
+    document.getElementById("ro-role").textContent = L.role;
+    document.getElementById("ro-body").textContent = L.body;
+
+    var facts = document.getElementById("ro-facts");
+    facts.textContent = "";
+    L.facts.forEach(function (row) {
+      var div = document.createElement("div");
+      var dt = document.createElement("dt");
+      var dd = document.createElement("dd");
+      dt.textContent = row[0];
+      dd.textContent = row[1];
+      div.append(dt, dd);
+      facts.appendChild(div);
+    });
+
+    var files = document.getElementById("ro-files");
+    files.textContent = "";
+    L.files.forEach(function (name) {
+      var code = document.createElement("code");
+      code.textContent = name;
+      files.appendChild(code);
+    });
+  }
+
+  function setActive(index, fromSlider) {
+    active = clamp(index, 0, 3);
+    if (!fromSlider) {
+      v = (active + 0.5) / 4;
+      slider.value = String(Math.round(v * 100));
+    }
+    out.value = v.toFixed(2);
+    out.textContent = v.toFixed(2);
+    chipEls.forEach(function (el) {
+      el.setAttribute("aria-pressed", String(Number(el.dataset.layer) === active));
+    });
+    renderReadout();
+  }
+
+  chipEls.forEach(function (el) {
+    el.addEventListener("click", function () {
+      setActive(Number(el.dataset.layer), false);
+    });
+  });
+
+  slider.addEventListener("input", function () {
+    v = Number(slider.value) / 100;
+    var index = Math.min(3, Math.floor(v * 4));
+    setActive(index, true);
+    out.value = v.toFixed(2);
+    out.textContent = v.toFixed(2);
+  });
+
+  spinBtn.addEventListener("click", function () {
+    paused = !paused;
+    spinBtn.textContent = paused ? "Spin" : "Pause";
+    spinBtn.setAttribute("aria-pressed", String(!paused));
+  });
+
+  canvas.addEventListener("pointerdown", function (event) {
+    dragging = true;
+    last.x = event.clientX;
+    last.y = event.clientY;
+    if (canvas.setPointerCapture) canvas.setPointerCapture(event.pointerId);
+  });
+
+  canvas.addEventListener("pointermove", function (event) {
+    if (!dragging) return;
+    yaw += (event.clientX - last.x) * 0.006;
+    pitch = clamp(pitch + (event.clientY - last.y) * 0.004, -0.55, 0.55);
+    last.x = event.clientX;
+    last.y = event.clientY;
+  });
+
+  function endDrag() { dragging = false; }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+  canvas.addEventListener("pointerleave", function () { if (dragging) endDrag(); });
+
+  canvas.addEventListener("keydown", function (event) {
+    var used = true;
+    if (event.key === "ArrowLeft") yaw -= 0.12;
+    else if (event.key === "ArrowRight") yaw += 0.12;
+    else if (event.key === "ArrowUp") pitch = clamp(pitch - 0.08, -0.55, 0.55);
+    else if (event.key === "ArrowDown") pitch = clamp(pitch + 0.08, -0.55, 0.55);
+    else used = false;
+    if (used) event.preventDefault();
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Tabs                                                                */
+  /* ------------------------------------------------------------------ */
+
+  var tabs = [].slice.call(document.querySelectorAll('[role="tab"]'));
+
+  function selectTab(tab) {
+    tabs.forEach(function (other) {
+      var on = other === tab;
+      other.setAttribute("aria-selected", String(on));
+      other.tabIndex = on ? 0 : -1;
+      var panel = document.getElementById(other.getAttribute("aria-controls"));
+      if (panel) panel.hidden = !on;
+    });
+  }
+
+  tabs.forEach(function (tab, index) {
+    tab.tabIndex = index === 0 ? 0 : -1;
+    tab.addEventListener("click", function () { selectTab(tab); });
+    tab.addEventListener("keydown", function (event) {
+      var next = null;
+      if (event.key === "ArrowRight") next = tabs[(index + 1) % tabs.length];
+      else if (event.key === "ArrowLeft") next = tabs[(index - 1 + tabs.length) % tabs.length];
+      else if (event.key === "Home") next = tabs[0];
+      else if (event.key === "End") next = tabs[tabs.length - 1];
+      if (next) {
+        event.preventDefault();
+        selectTab(next);
+        next.focus();
+      }
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Copy                                                                */
+  /* ------------------------------------------------------------------ */
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      try {
+        document.execCommand("copy") ? resolve() : reject(new Error("copy failed"));
+      } catch (err) {
+        reject(err);
+      } finally {
+        document.body.removeChild(area);
+      }
+    });
+  }
+
+  [].slice.call(document.querySelectorAll(".copy")).forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var source = document.getElementById(btn.dataset.copy);
+      if (!source) return;
+      var text = source.textContent.replace(/^\n+|\n+$/g, "");
+      copyText(text).then(function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1400);
+      }).catch(function () {
+        btn.textContent = "Select it";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+      });
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Frame loop                                                          */
+  /* ------------------------------------------------------------------ */
+
+  var previous = performance.now();
+
+  function frame(now) {
+    var dt = Math.min(48, now - previous);
+    previous = now;
+    if (!paused && !dragging) yaw += dt * 0.00019;
+    draw(now);
+    window.requestAnimationFrame(frame);
+  }
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(resize).observe(canvas);
+  } else {
+    window.addEventListener("resize", resize);
+  }
+
+  setActive(0, true);
+  slider.value = "0";
+  out.value = "0.00";
+  out.textContent = "0.00";
+  spinBtn.textContent = paused ? "Spin" : "Pause";
+  spinBtn.setAttribute("aria-pressed", String(!paused));
+  resize();
+  window.requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
