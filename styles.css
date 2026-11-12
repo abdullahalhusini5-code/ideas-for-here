@@ -90,6 +90,14 @@ a:hover { text-decoration-color: var(--accent); }
 .modeswitch button:hover { color: var(--ink); }
 .modeswitch button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
 
+.topbar__tools { display: flex; align-items: center; gap: 16px; }
+.toplink {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-soft); text-decoration: none;
+  white-space: nowrap; border-bottom: 1px solid transparent; padding-bottom: 2px;
+}
+.toplink:hover { color: var(--ink); border-color: var(--accent); }
+
 /* ---------- hero ---------- */
 
 .hero {
@@ -531,6 +539,11 @@ footer { border-top: 1px solid var(--rule); padding: 40px 0 34px; }
   .figures div:nth-child(odd) { border-right: 1px solid var(--rule-soft); padding-right: 12px; }
   .grid { grid-template-columns: 1fr; }
   .remix__head { align-items: flex-start; }
+}
+
+/* No room beside the wordmark and the mode tabs on a phone; the footer link stands in. */
+@media (max-width: 480px) {
+  .toplink { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
