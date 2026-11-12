@@ -1,4 +1,9 @@
 .playwright-mcp/
 .serena/
+node_modules/
+
+# Verification artefacts: screenshots taken while checking the real page.
+screenshots/
+*.screenshot.png
 shot-*.png
 v2-*.png
