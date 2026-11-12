@@ -55,23 +55,31 @@
   .top { border-bottom: 1px solid var(--rule); }
   .top__in {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 18px; padding: 16px 0;
+    gap: 18px; padding-top: 16px; padding-bottom: 16px;
   }
   .mark {
     font-family: var(--serif); font-size: 19px; letter-spacing: -.01em;
     text-decoration: none; white-space: nowrap;
   }
-  .top nav { display: flex; align-items: center; gap: clamp(12px, 2vw, 24px); }
+  .top nav { display: flex; align-items: center; flex-wrap: wrap; gap: clamp(12px, 2vw, 24px); }
   .top nav a {
     text-decoration: none; font-size: 13.5px; color: var(--ink-soft);
     border-bottom: 1px solid transparent; padding-bottom: 2px;
   }
   .top nav a:hover { border-color: var(--accent); }
   .top nav a[aria-current="page"] { color: var(--ink); border-color: var(--ink); }
+  .top nav a.back {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 13px 6px 11px; border: 1px solid var(--rule); border-radius: 999px;
+    background: var(--paper-2); color: var(--ink-soft);
+    font-size: 12px; letter-spacing: .04em; white-space: nowrap;
+  }
+  .top nav a.back span { font-size: 14px; line-height: 1; }
+  .top nav a.back:hover { color: var(--ink); border-color: var(--ink-soft); background: #fffdf8; }
 
   /* ---------- hero ---------- */
 
-  .hero { padding: clamp(44px, 7vw, 92px) 0 clamp(26px, 4vw, 44px); }
+  .hero { padding-top: clamp(44px, 7vw, 92px); padding-bottom: clamp(26px, 4vw, 44px); }
   .eyebrow {
     display: flex; align-items: center; gap: 14px;
     margin: 0; font-size: 11px; letter-spacing: .19em; text-transform: uppercase;
@@ -99,7 +107,7 @@
   .stage {
     display: grid; grid-template-columns: minmax(0, 1.16fr) minmax(300px, .84fr);
     gap: clamp(20px, 3vw, 40px); align-items: start;
-    padding: 6px 0 clamp(44px, 6vw, 76px);
+    padding-bottom: clamp(44px, 6vw, 76px);
     border-top: 1px solid var(--rule);
     padding-top: clamp(24px, 3vw, 36px);
   }
@@ -198,7 +206,7 @@
 
   /* ---------- sections ---------- */
 
-  .section { padding: clamp(46px, 6vw, 84px) 0; border-top: 1px solid var(--rule); }
+  .section { padding-top: clamp(46px, 6vw, 84px); padding-bottom: clamp(46px, 6vw, 84px); border-top: 1px solid var(--rule); }
   .section__head {
     display: flex; align-items: baseline; justify-content: space-between;
     gap: 16px; flex-wrap: wrap; margin-bottom: clamp(22px, 3vw, 36px);
@@ -339,6 +347,7 @@
   @media (max-width: 560px) {
     body { font-size: 16px; }
     .top__in { flex-wrap: wrap; }
+    .back__rest { display: none; }
     .step { grid-template-columns: 40px minmax(0, 1fr); }
     .step code.inline { white-space: normal; overflow-wrap: anywhere; }
     .layers { grid-template-columns: minmax(0, 1fr); }
@@ -350,6 +359,11 @@
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+  }
+
+  @media (max-width: 380px) {
+    .code__tag { display: none; }
+    .code--tagged pre { padding-top: 16px; }
   }
 
   @media print {
@@ -367,7 +381,7 @@
   <div class="wrap top__in">
     <a class="mark" href="index.html">Ideas for Here</a>
     <nav aria-label="Pages">
-      <a href="index.html">The catalog</a>
+      <a class="back" href="index.html"><span aria-hidden="true">←</span>Back<span class="back__rest"> to the catalog</span></a>
       <a href="#mcp">MCP guide</a>
       <a href="https://github.com/abdullahalhusini5-code/ideas-for-here" rel="noopener">Source</a>
     </nav>
