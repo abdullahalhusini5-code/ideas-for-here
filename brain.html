@@ -321,6 +321,7 @@
   .ref code { font-size: 12px; color: var(--ink); }
 
   .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 56px); }
+  .split--spaced { margin-top: clamp(30px, 4vw, 52px); }
   .split h3 { margin: 0 0 8px; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .split p { margin: 0 0 12px; color: var(--ink-soft); font-size: 14px; }
 
@@ -374,6 +375,12 @@
     body { background: #fff; }
   }
 </style>
+<noscript>
+  <style>
+    .tabpanel[hidden] { display: block !important; }
+    .tabs, .controls, .copy { display: none !important; }
+  </style>
+</noscript>
 </head>
 <body>
 
@@ -718,7 +725,7 @@ node tools\check-links.js</pre>
       </li>
     </ol>
 
-    <div class="split" style="margin-top: clamp(30px, 4vw, 52px);">
+    <div class="split split--spaced">
       <div>
         <h3>What the agent can call</h3>
         <dl class="ref">
@@ -746,13 +753,6 @@ node tools\check-links.js</pre>
     </nav>
   </div>
 </footer>
-
-<noscript>
-  <style>
-    .tabpanel[hidden] { display: block !important; }
-    .tabs, .controls, .copy { display: none !important; }
-  </style>
-</noscript>
 
 <script>
 (function () {

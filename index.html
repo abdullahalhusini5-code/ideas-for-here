@@ -58,8 +58,8 @@
     <a class="wordmark" href="#top"><b>Ideas for Here</b></a>
     <div class="topbar__tools">
       <div class="modeswitch" role="tablist" aria-label="How to use this page">
-        <button role="tab" id="tab-browse" aria-selected="true" aria-controls="panel-browse">Browse all</button>
-        <button role="tab" id="tab-ask" aria-selected="false" aria-controls="panel-ask">Match me</button>
+        <button type="button" role="tab" id="tab-browse" aria-selected="true" aria-controls="panel-browse">Browse all</button>
+        <button type="button" role="tab" id="tab-ask" aria-selected="false" aria-controls="panel-ask">Match me</button>
       </div>
       <a class="toplink" href="brain.html">The brain <span aria-hidden="true">→</span></a>
     </div>
@@ -138,7 +138,7 @@
       <div class="grid" id="grid"><p class="grid__note">Loading the catalog…</p></div>
 
       <noscript>
-        <p style="padding:30px 0">Cards are drawn by JavaScript. With scripting off, read the catalog directly in <code>ideas.json</code>.</p>
+        <p class="noscript-note">Cards are drawn by JavaScript. With scripting off, read the catalog directly in <code>ideas.json</code>.</p>
       </noscript>
 
       <div class="remix" id="remix">
@@ -168,8 +168,8 @@
             <button class="btn" id="btn-next" type="button">Next</button>
           </div>
         </div>
-        <aside class="ask__aside">
-          <h3>How this works</h3>
+        <aside class="ask__aside" aria-labelledby="how-this-works">
+          <h3 id="how-this-works">How this works</h3>
           <p>Four questions. No account, no email, nothing sent anywhere.</p>
           <p>Ranking is arithmetic, not a model: answers are weighted, the catalog is sorted, and every result prints its reasons.</p>
         </aside>

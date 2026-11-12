@@ -1,5 +1,7 @@
 # Ideas for Here
 
+[![checks](https://github.com/abdullahalhusini5-code/ideas-for-here/actions/workflows/ci.yml/badge.svg)](https://github.com/abdullahalhusini5-code/ideas-for-here/actions/workflows/ci.yml)
+
 Live at **https://abdullahalhusini5-code.github.io/ideas-for-here/**
 
 A catalog of small apps and projects for ordinary local problems, in plain English. Browse
@@ -36,6 +38,31 @@ node server.mjs --port 4173
 Serve the folder over HTTP; opening `index.html` from disk no longer works, because the
 page fetches the catalog and browsers block that on `file://`.
 
+## Check it
+
+One command runs everything CI runs:
+
+```powershell
+npm run verify
+```
+
+| Check | Command | What it proves |
+|---|---|---|
+| Catalog, schema, MCP, server | `npm test` | 35 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy |
+| Schema | `npm run check:schema` | `ideas.json` conforms to `ideas.schema.json`, and the schema uses no keyword the checker cannot enforce |
+| Repo promises | `npm run check:repo` | the test count quoted in prose is true, there are zero runtime dependencies, and every dev dependency is pinned |
+| HTML | `npm run check:html` | every page in the root is valid HTML (dev-only tool, never served) |
+| Links | `npm run check:links` | every kit URL and every external link answers under 400; needs network |
+
+GitHub Actions runs the first four on every push and pull request, on Node 20 and 22
+(`.github/workflows/ci.yml`), and the link check every Monday
+(`.github/workflows/links.yml`) — it opens an issue when a link breaks and closes it when
+the link answers again. The browser checks are local: Playwright is not installed in CI.
+
+`axe-core` and `html-validate` are **dev dependencies only**. Nothing from `node_modules`
+is served, `dependencies` stays empty, and versions are exact so a checker cannot change
+under the repo.
+
 ## Files
 
 | File | Purpose |
@@ -54,7 +81,8 @@ page fetches the catalog and browsers block that on `file://`.
 | `tools/test-mcp.mjs` | 35 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
 | `tools/check-schema.mjs` | Checks `ideas.json` against `ideas.schema.json` (no dependencies) |
 | `tools/schema-lite.mjs` | The small JSON Schema checker the two above use |
-| `tools/check-links.js` | Re-checks every external link in the catalog |
+| `tools/check-links.js` | Re-checks every external link in the catalog and every page's local links |
+| `.github/workflows/` | CI on every push, and the weekly link check that opens an issue |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
 | `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
 | `404.html` | Static not-found page for GitHub Pages |

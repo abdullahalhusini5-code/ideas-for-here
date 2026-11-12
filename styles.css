@@ -526,6 +526,9 @@ footer { border-top: 1px solid var(--rule); padding: 40px 0 34px; }
   color: var(--muted); margin-top: 34px;
 }
 
+/* The no-JavaScript note sits where the cards would be. */
+.noscript-note { padding: 30px 0; }
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 720px) {

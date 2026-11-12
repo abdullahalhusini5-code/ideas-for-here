@@ -1,0 +1,68 @@
+name: links
+
+on:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check every link
+        id: check
+        continue-on-error: true
+        run: node tools/check-links.js | tee links.txt
+
+      - name: Open or update an issue when a link breaks
+        if: steps.check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const report = fs.readFileSync("links.txt", "utf8");
+            const title = "A link in the catalog stopped working";
+            const { data: open } = await github.rest.issues.listForRepo({
+              ...context.repo, state: "open", per_page: 50
+            });
+            const existing = open.find((issue) => issue.title === title);
+            const body = [
+              "The weekly link check failed. This issue is updated on every run until the links are fixed.",
+              "",
+              "```",
+              report.slice(-50000),
+              "```"
+            ].join("\n");
+            if (existing) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({ ...context.repo, title, body });
+            }
+
+      - name: Close the issue when everything answers again
+        if: steps.check.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "A link in the catalog stopped working";
+            const { data: open } = await github.rest.issues.listForRepo({
+              ...context.repo, state: "open", per_page: 50
+            });
+            for (const issue of open.filter((entry) => entry.title === title)) {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number, body: "This week's check passed; closing." });
+              await github.rest.issues.update({ ...context.repo, issue_number: issue.number, state: "closed" });
+            }
+
+      - name: Fail the run when the check failed
+        if: steps.check.outcome == 'failure'
+        run: exit 1
