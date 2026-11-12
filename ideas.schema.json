@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abdullahalhusini5-code.github.io/ideas-for-here/ideas.schema.json",
+  "title": "Ideas for Here catalog",
+  "description": "The published shape of ideas.json, the single source of truth for the page, the MCP server and the tests. Structure is machine-checked here; cross-idea rules (unique ids, area ids that exist) live in validateCatalog() in mcp/core.mjs. Every kit URL must answer 200; see tools/check-links.js.",
+  "type": "object",
+  "required": ["updated", "updatedLabel", "areas", "times", "lanes", "ideas", "remix"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Relative path to this file, so editors validate ideas.json as you type."
+    },
+    "updated": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "ISO date the catalog last changed. Feeds the sitemap and the Atom feed."
+    },
+    "updatedLabel": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The same date written for a person, e.g. '11 November 2026'."
+    },
+    "areas": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The eight areas of local life. Every idea.area must name one of these ids.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "colour"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "minLength": 2 },
+          "label": { "type": "string", "minLength": 1 },
+          "colour": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$",
+            "description": "Six-digit hex, used for the card accent."
+          }
+        }
+      }
+    },
+    "times": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "minLength": 2 },
+          "label": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "lanes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9-]+$", "minLength": 2 },
+          "label": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "remix": {
+      "type": "object",
+      "required": ["topics", "formats", "constraints"],
+      "additionalProperties": false,
+      "properties": {
+        "topics": {
+          "type": "array",
+          "minItems": 5,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "formats": {
+          "type": "array",
+          "minItems": 5,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "constraints": {
+          "type": "array",
+          "minItems": 5,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "ideas": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/idea" }
+    }
+  },
+  "$defs": {
+    "idea": {
+      "type": "object",
+      "required": [
+        "id", "title", "tagline", "describe", "area", "goals",
+        "minutes", "lanes", "needs", "steps", "kit", "helps", "watch"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "minLength": 2,
+          "maxLength": 60,
+          "description": "Stable slug. Used in URLs, MCP calls and file names, so it must never change once published."
+        },
+        "title": { "type": "string", "minLength": 1, "description": "Plain words, no developer vocabulary." },
+        "tagline": { "type": "string", "minLength": 1, "description": "One line, shown on the card." },
+        "describe": { "type": "string", "minLength": 1, "description": "Two or three plain sentences: the problem, then the small thing that helps." },
+        "area": { "type": "string", "minLength": 1, "description": "Must match an id in areas[]." },
+        "goals": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["ease", "earn", "help", "learn"] }
+        },
+        "minutes": { "type": "string", "minLength": 1, "description": "Must match an id in times[]." },
+        "lanes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["ready", "assistant", "code"] }
+        },
+        "needs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "What the person must already have. May be empty."
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "The first moves, in order. At least three."
+        },
+        "kit": {
+          "type": "object",
+          "description": "Free or cheap pieces that apply, keyed by short name. Every row is [name, url, note].",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "prefixItems": [
+              { "type": "string", "minLength": 1 },
+              { "type": "string", "pattern": "^https?://" },
+              { "type": "string", "minLength": 1 }
+            ]
+          }
+        },
+        "helps": { "type": "string", "minLength": 1, "description": "Who this is good for." },
+        "watch": { "type": "string", "minLength": 1, "description": "The honest catch, in plain words." }
+      }
+    }
+  }
+}

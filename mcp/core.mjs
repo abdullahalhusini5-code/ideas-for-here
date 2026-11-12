@@ -68,6 +68,7 @@ export function slugify(value) {
 }
 
 const REQUIRED_STRINGS = ["id", "title", "tagline", "describe", "area", "minutes", "helps", "watch"];
+export { REQUIRED_STRINGS };
 
 export function validateCatalog(data) {
   const errors = [];

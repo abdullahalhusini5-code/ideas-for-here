@@ -12,7 +12,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { DATA_FILE, readCatalog, validateCatalog } from "../mcp/core.mjs";
+import { DATA_FILE, readCatalog, validateCatalog, REQUIRED_STRINGS } from "../mcp/core.mjs";
+import { validate as validateSchema, lintSchema } from "./schema-lite.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_ONLY = process.argv.includes("--data-only");
@@ -68,6 +69,66 @@ async function testData() {
     assert.ok(data.remix.topics.length >= 10);
     assert.ok(data.remix.formats.length >= 5);
     assert.ok(data.remix.constraints.length >= 5);
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Schema: the published contract must agree with the runtime rules.   */
+  /* ------------------------------------------------------------------ */
+
+  const schema = JSON.parse(fs.readFileSync(path.join(ROOT, "ideas.schema.json"), "utf8"));
+
+  await test("ideas.schema.json uses only supported keywords", () => {
+    assert.deepEqual(lintSchema(schema), []);
+  });
+
+  await test("ideas.json conforms to the schema", () => {
+    assert.deepEqual(validateSchema(data, schema), []);
+  });
+
+  await test("schema and validator require the same idea fields", () => {
+    const fromSchema = schema.$defs.idea.required.slice().sort();
+    const fromValidator = [...REQUIRED_STRINGS, "goals", "lanes", "needs", "steps", "kit"].sort();
+    assert.deepEqual(fromSchema, fromValidator);
+  });
+
+  /* Each fixture breaks one rule. `reject` says who must catch it:
+   *   "both"      a shape rule the schema and validateCatalog agree on
+   *   "schema"    a shape rule the runtime validator leaves to the schema
+   *   "validator" a cross-idea rule a JSON Schema cannot express (unique ids)
+   * The split is deliberate and asserted, so neither side can grow a silent gap. */
+  const clone = () => JSON.parse(JSON.stringify(data));
+  const fixtures = [
+    { name: "id in capitals", reject: "both", edit: (d) => { d.ideas[0].id = "Water-Tank"; } },
+    { name: "empty title", reject: "both", edit: (d) => { d.ideas[0].title = ""; } },
+    { name: "no goals", reject: "both", edit: (d) => { d.ideas[0].goals = []; } },
+    { name: "unknown goal", reject: "schema", edit: (d) => { d.ideas[0].goals = ["fame"]; } },
+    { name: "unknown lane", reject: "both", edit: (d) => { d.ideas[0].lanes = ["vibes"]; } },
+    { name: "unknown area", reject: "validator", edit: (d) => { d.ideas[0].area = "space"; } },
+    { name: "two steps", reject: "both", edit: (d) => { d.ideas[0].steps = ["one", "two"]; } },
+    { name: "kit row too short", reject: "both", edit: (d) => { d.ideas[0].kit = { x: ["name", "https://example.com"] }; } },
+    { name: "kit row not a URL", reject: "both", edit: (d) => { d.ideas[0].kit = { x: ["name", "ftp://example.com", "note"] }; } },
+    { name: "needs is not a list", reject: "both", edit: (d) => { d.ideas[0].needs = "a phone"; } },
+    { name: "no helps", reject: "both", edit: (d) => { delete d.ideas[0].helps; } },
+    { name: "no remix", reject: "both", edit: (d) => { delete d.remix; } },
+    { name: "colour is a word", reject: "schema", edit: (d) => { d.areas[0].colour = "red"; } },
+    { name: "date is not ISO", reject: "schema", edit: (d) => { d.updated = "11/11/2026"; } },
+    { name: "unknown idea field", reject: "schema", edit: (d) => { d.ideas[0].vibe = "good"; } },
+    { name: "duplicate id", reject: "validator", edit: (d) => { d.ideas[1].id = d.ideas[0].id; } },
+  ];
+
+  await test("every bad fixture is rejected by the right checker", () => {
+    for (const f of fixtures) {
+      const bad = clone();
+      f.edit(bad);
+      const schemaErrors = validateSchema(bad, schema);
+      const validatorErrors = validateCatalog(bad);
+      const wantsSchema = f.reject === "both" || f.reject === "schema";
+      const wantsValidator = f.reject === "both" || f.reject === "validator";
+      assert.equal(schemaErrors.length > 0, wantsSchema,
+        `${f.name}: schema ${wantsSchema ? "should" : "should not"} reject, got ${schemaErrors.length} error(s)`);
+      assert.equal(validatorErrors.length > 0, wantsValidator,
+        `${f.name}: validator ${wantsValidator ? "should" : "should not"} reject, got ${validatorErrors.length} error(s)`);
+    }
   });
 }
 

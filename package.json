@@ -13,6 +13,7 @@
     "mcp:readonly": "node mcp/server.mjs --read-only",
     "test": "node tools/test-mcp.mjs",
     "test:data": "node tools/test-mcp.mjs --data-only",
+    "check:schema": "node tools/check-schema.mjs",
     "check:links": "node tools/check-links.js"
   }
 }

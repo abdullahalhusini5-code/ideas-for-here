@@ -43,6 +43,7 @@ page fetches the catalog and browsers block that on `file://`.
 | `index.html` | Structure, copy, both modes, privacy/licence/accessibility notes |
 | `styles.css` | The whole visual system; variables at the top |
 | `ideas.json` | **The catalog**: 31 ideas with `helps`/`watch`, areas, times, lanes, remix lists |
+| `ideas.schema.json` | The published shape of `ideas.json`, for editors and CI |
 | `ideas.js` | Loader: fetches `/api/ideas` when the local server says it exists, else `ideas.json` |
 | `app.js` | Async boot, URL state, deep links, filtering, ranking, questionnaire, remix, rendering |
 | `brain.html` | The four layers as an interactive scan, plus a seven-step MCP guide |
@@ -50,7 +51,9 @@ page fetches the catalog and browsers block that on `file://`.
 | `mcp/core.mjs` | Catalog access, validation, search, write rules, MCP tools/resources/prompts |
 | `mcp/server.mjs` | MCP over stdio, with `--read-only` |
 | `mcp/README.md` | Client configs for Claude Desktop/Code, Cursor, Codex, OpenCode; tool reference |
-| `tools/test-mcp.mjs` | 31 checks: catalog, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/test-mcp.mjs` | 35 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/check-schema.mjs` | Checks `ideas.json` against `ideas.schema.json` (no dependencies) |
+| `tools/schema-lite.mjs` | The small JSON Schema checker the two above use |
 | `tools/check-links.js` | Re-checks every external link in the catalog |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
 | `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
@@ -68,6 +71,21 @@ node mcp\server.mjs
 # then call ideas_add or ideas_update from your agent;
 # reload http://127.0.0.1:4173/ to see it through /api/ideas
 ```
+
+The shape of the file is published as `ideas.schema.json`, and `ideas.json` points at it with
+`"$schema"`, so an editor with JSON support underlines a bad field as you type. Two rules that
+a schema cannot express — ids must be unique, and every `area`/`minutes`/`lanes` value must
+exist in the lists at the top of the file — are enforced by `validateCatalog()` in
+`mcp/core.mjs` instead. Check both before committing:
+
+```powershell
+node tools\check-schema.mjs
+node tools\test-mcp.mjs --data-only
+```
+
+`tools/schema-lite.mjs` is a deliberately small checker: it supports the keywords
+`ideas.schema.json` uses and rejects any keyword it does not understand, so the schema cannot
+quietly rely on a rule nothing enforces. It is not a general JSON Schema implementation.
 
 Or edit the JSON directly. One idea looks like this:
 
