@@ -8,7 +8,7 @@
 <meta name="author" content="abdullahalhusini5-code">
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#f7f3ea">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="light dark">
 <link rel="canonical" href="https://abdullahalhusini5-code.github.io/ideas-for-here/">
 <meta property="og:site_name" content="Ideas for Here">
 <meta property="og:title" content="Ideas for Here">
@@ -24,6 +24,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -62,6 +63,9 @@
         <button type="button" role="tab" id="tab-ask" aria-selected="false" aria-controls="panel-ask">Match me</button>
       </div>
       <a class="toplink" href="brain.html">The brain <span aria-hidden="true">→</span></a>
+      <button class="themebtn" type="button" id="theme-toggle" aria-pressed="false" hidden>
+        <span class="themebtn__icon" aria-hidden="true"></span><span class="themebtn__text">Dark</span>
+      </button>
     </div>
   </div>
 </header>
@@ -157,7 +161,7 @@
 
     <!-- ============ MATCH ============ -->
     <section class="panel" id="panel-ask" role="tabpanel" aria-labelledby="tab-ask" hidden>
-      <h2 class="sr-only">Match me</h2>
+      <h1 class="sr-only">Match me</h1>
       <div class="askwrap" id="ask-form">
         <div class="ask">
           <div class="ask__progress" id="ask-progress" aria-hidden="true"></div>
@@ -169,7 +173,7 @@
           </div>
         </div>
         <aside class="ask__aside" aria-labelledby="how-this-works">
-          <h3 id="how-this-works">How this works</h3>
+          <h2 id="how-this-works">How this works</h2>
           <p>Four questions. No account, no email, nothing sent anywhere.</p>
           <p>Ranking is arithmetic, not a model: answers are weighted, the catalog is sorted, and every result prints its reasons.</p>
         </aside>
@@ -180,6 +184,7 @@
           <h2 id="match-title">Your three starters</h2>
           <p id="match-sub"></p>
         </div>
+        <p class="sr-only" id="match-live" aria-live="polite"></p>
         <div class="matches" id="matches"></div>
         <div class="also">
           <h3>Also worth a look</h3>

@@ -470,9 +470,8 @@
     const btn = card.querySelector(".expander");
     if (btn.getAttribute("aria-expanded") !== "true") btn.click();
     scrollToEl(card, "center");
-    card.style.transition = "background .6s";
-    card.style.background = "rgba(178,58,42,.07)";
-    setTimeout(() => { card.style.background = ""; }, 1600);
+    card.classList.add("card--flash");
+    setTimeout(() => card.classList.remove("card--flash"), 1600);
   });
 
   /* Print: open every kit so the paper copy is complete. */
@@ -592,7 +591,7 @@
     const wrap = el("div", "q");
     const num = el("p", "q__num");
     num.textContent = `Question ${state.qIndex + 1} of ${QUESTIONS.length}`;
-    const h3 = el("h3"); h3.textContent = q.title;
+    const heading = el("h2"); heading.textContent = q.title;
     const opts = el("div", "options");
     opts.setAttribute("role", "group");
     opts.setAttribute("aria-label", q.title);
@@ -616,7 +615,7 @@
       opts.appendChild(b);
     });
 
-    wrap.append(num, h3, opts);
+    wrap.append(num, heading, opts);
     host.appendChild(wrap);
 
     const prog = $("#ask-progress");
@@ -729,6 +728,15 @@
     const host = $("#matches");
     host.innerHTML = "";
     top.forEach((row, i) => host.appendChild(matchEl(row, i)));
+
+    /* Announce the result in words as well as moving focus to the heading. */
+    const live = $("#match-live");
+    if (live) {
+      live.textContent = top.length
+        ? `${top.length} starter${top.length === 1 ? "" : "s"}, the first being ${top[0].idea.title}.` +
+          (rest.length ? ` ${rest.length} more are listed as also worth a look.` : "")
+        : "No starters matched those answers.";
+    }
 
     const also = $(".also");
     const alsoList = $("#alsolist");

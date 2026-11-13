@@ -15,9 +15,10 @@
     "test:data": "node tools/test-mcp.mjs --data-only",
     "check:schema": "node tools/check-schema.mjs",
     "check:repo": "node tools/check-repo.mjs",
+    "check:contrast": "node tools/check-contrast.mjs",
     "check:html": "html-validate \"*.html\"",
     "check:links": "node tools/check-links.js",
-    "verify": "node tools/test-mcp.mjs && node tools/check-schema.mjs && node tools/check-repo.mjs && npm run check:html"
+    "verify": "node tools/test-mcp.mjs && node tools/check-schema.mjs && node tools/check-repo.mjs && node tools/check-contrast.mjs && npm run check:html"
   },
   "devDependencies": {
     "axe-core": "4.14.0",

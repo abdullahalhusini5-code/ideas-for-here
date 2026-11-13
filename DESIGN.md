@@ -151,7 +151,32 @@ no purple. (The only gradient is a 3%-opacity CSS rule used to fake paper grain,
 disappears in print.) Cards form a continuous hairline grid, and the catalog reads like an
 index.
 
+### Light and dark
+
+The page switches themes with a toggle in the top bar (`localStorage` key `ideas-theme`;
+unset follows the operating system). Both themes ship in `styles.css`, and `brain.html`
+carries the same palette in its own block — `tools/check-contrast.mjs` fails the build if
+the two dark blocks drift apart or any token loses its dark value.
+
+| Token | Light | Dark | Used for |
+|---|---|---|---|
+| `--paper` | `#f7f3ea` | `#15140f` | page background |
+| `--paper-2` | `#fdfbf5` | `#1d1b15` | cards, inputs |
+| `--ink` | `#17160f` | `#f3eee2` | body text |
+| `--ink-soft` | `#454136` | `#d3cbb8` | secondary text |
+| `--muted` | `#6d675a` | `#a8a08c` | quiet text, hairlines |
+| `--rule` | `#d6cdb8` | `#3b362b` | borders |
+| `--rule-soft` | `#e6dfcd` | `#2a271f` | subtle borders |
+| `--accent` | `#b23a2a` | `#e2806a` | accent, focus ring |
+| `--accent-ink` | `#8e2c1f` | `#eea48f` | links |
+| `--green` | `#2f4a3a` | `#8fb99f` | area dots |
+
+Every text colour clears WCAG AA (≥ 4.5:1) against its surface in both themes, measured by
+`tools/check-contrast.mjs`. `prefers-reduced-motion` still kills all transitions, and the
+page is fully usable at 320 px wide.
+
 Three layout decisions carry the details without adding noise:
+
 
 - **The hero is two columns above 1040 px.** The right column is a plain "what a card
   gives you" panel, so the headline does not have to explain the whole page.
@@ -167,9 +192,13 @@ would rather invent their own brief than pick one: name the problem in one sente
 the first move on paper, show it to one person. It is hidden in print with the other
 chrome.
 
-Accessibility: real buttons with `aria-pressed` / `aria-expanded`, a live region for the
-result count, visible focus rings, `prefers-reduced-motion` honoured, contrast ≥ 5:1 for
-body and muted text, and the whole thing still works at 320 px wide.
+Accessibility: real buttons with `aria-pressed` / `aria-expanded`, a skip link, visible
+focus rings, `prefers-reduced-motion` honoured, a light/dark toggle (stored in
+`localStorage`, defaults to the operating system) with WCAG AA contrast in both themes,
+headings that stay in order (`h1` page title → `h2` sections), a live region announcing
+match results, and the whole thing still works at 320 px wide. The questionnaire can be
+completed entirely from the keyboard: arrow keys switch Browse / Match me, and Enter
+selects an answer and moves to the next question.
 
 ## What was deliberately left out
 

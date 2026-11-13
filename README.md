@@ -52,6 +52,7 @@ npm run verify
 | Schema | `npm run check:schema` | `ideas.json` conforms to `ideas.schema.json`, and the schema uses no keyword the checker cannot enforce |
 | Repo promises | `npm run check:repo` | the test count quoted in prose is true, there are zero runtime dependencies, and every dev dependency is pinned |
 | HTML | `npm run check:html` | every page in the root is valid HTML (dev-only tool, never served) |
+| Contrast | `npm run check:contrast` | both theme blocks agree, every text colour clears WCAG AA |
 | Links | `npm run check:links` | every kit URL and every external link answers under 400; needs network |
 
 GitHub Actions runs the first four on every push and pull request, on Node 20 and 22
@@ -82,6 +83,8 @@ under the repo.
 | `tools/check-schema.mjs` | Checks `ideas.json` against `ideas.schema.json` (no dependencies) |
 | `tools/schema-lite.mjs` | The small JSON Schema checker the two above use |
 | `tools/check-links.js` | Re-checks every external link in the catalog and every page's local links |
+| `tools/check-contrast.mjs` | Asserts both theme blocks agree and every text colour clears WCAG AA |
+| `theme.js` | Light/dark switch: stored choice, falls back to the operating system, no flash |
 | `.github/workflows/` | CI on every push, and the weekly link check that opens an issue |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
 | `robots.txt`, `sitemap.xml` | Crawler rules and the single canonical URL |
@@ -197,3 +200,15 @@ The page sets no cookies, runs no analytics, loads no third-party scripts, and s
 about you anywhere. It makes one same-origin request for the catalog (a second, the JSON
 fallback, only if the first is unavailable). GitHub Pages
 still records standard server logs as the host; the in-page privacy note says so plainly.
+
+## Accessibility
+
+- **Themes:** a light/dark toggle in the top bar (keyboard reachable, `aria-pressed`).
+  Unset it follows the operating system; the choice is remembered in `localStorage`.
+  WCAG AA contrast is enforced in both themes by `tools/check-contrast.mjs`.
+- **Keyboard:** arrow keys switch Browse / Match me; Enter selects an answer and advances
+  the questionnaire; focus moves to the results heading when matches appear, and a live
+  region announces them.
+- **Structure:** one `h1` per page, heading order never skips a level, real buttons with
+  `aria-pressed` / `aria-expanded`, a skip link, and `prefers-reduced-motion` honoured.
+- **Everything works at 320 px wide, and nothing is injected by a build step.**

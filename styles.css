@@ -2,6 +2,8 @@
    Warm paper, ink, one terracotta accent, hairline rules, serif display. */
 
 :root {
+  color-scheme: light;
+
   --paper:      #f7f3ea;
   --paper-2:    #fdfbf5;
   --ink:        #17160f;
@@ -13,12 +15,96 @@
   --accent-ink: #8e2c1f;
   --green:      #2f4a3a;
 
+  /* Ink and paper swap in the dark theme, so text on an inverted surface is
+     simply --paper. These two are for the quieter text and hairlines on it. */
+  --on-ink-soft:  #cdc5b3;
+  --on-ink-faint: rgba(247, 243, 234, .22);
+
+  /* Colours that need transparency, named so the dark block can replace them. */
+  --topbar-bg:    rgba(247, 243, 234, .94);
+  --link-rule:    rgba(178, 58, 42, .35);
+  --muted-rule:   rgba(109, 103, 90, .4);
+  --placeholder:  #6f685b;
+  --dash:         rgba(109, 103, 90, .5);
+  --btn-hover-bg: #000000;
+  --highlight:    rgba(178, 58, 42, .08);
+  --grain-a:      rgba(120, 110, 90, .035);
+  --grain-b:      rgba(120, 110, 90, .025);
+  --dot-filter:   none;
+
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
 
   --pad: clamp(18px, 4vw, 64px);
   --maxw: 1200px;
+}
+
+/* The dark palette exists twice: once for the operating system's setting, once
+   for the toggle. Keep the two blocks identical — tools/check-contrast.mjs
+   compares every token and fails when they drift. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --paper:      #15140f;
+    --paper-2:    #1d1b15;
+    --ink:        #f3eee2;
+    --ink-soft:   #d3cbb8;
+    --muted:      #a8a08c;
+    --rule:       #3b362b;
+    --rule-soft:  #2a271f;
+    --accent:     #e2806a;
+    --accent-ink: #eea48f;
+    --green:      #8fb99f;
+
+    --on-ink-soft:  #403a2e;
+    --on-ink-faint: rgba(21, 20, 15, .25);
+
+    --topbar-bg:    rgba(21, 20, 15, .94);
+    --link-rule:    rgba(226, 128, 106, .45);
+    --muted-rule:   rgba(168, 160, 140, .4);
+    --placeholder:  #98907c;
+    --dash:         rgba(168, 160, 140, .45);
+    --btn-hover-bg: #ffffff;
+    --highlight:    rgba(226, 128, 106, .14);
+    --grain-a:      rgba(230, 220, 195, .035);
+    --grain-b:      rgba(230, 220, 195, .022);
+    --dot-filter:   brightness(1.45) saturate(1.05);
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper:      #15140f;
+  --paper-2:    #1d1b15;
+  --ink:        #f3eee2;
+  --ink-soft:   #d3cbb8;
+  --muted:      #a8a08c;
+  --rule:       #3b362b;
+  --rule-soft:  #2a271f;
+  --accent:     #e2806a;
+  --accent-ink: #eea48f;
+  --green:      #8fb99f;
+
+  --on-ink-soft:  #403a2e;
+  --on-ink-faint: rgba(21, 20, 15, .25);
+
+  --topbar-bg:    rgba(21, 20, 15, .94);
+  --link-rule:    rgba(226, 128, 106, .45);
+  --muted-rule:   rgba(168, 160, 140, .4);
+  --placeholder:  #98907c;
+  --dash:         rgba(168, 160, 140, .45);
+  --btn-hover-bg: #ffffff;
+  --highlight:    rgba(226, 128, 106, .14);
+  --grain-a:      rgba(230, 220, 195, .035);
+  --grain-b:      rgba(230, 220, 195, .022);
+  --dot-filter:   brightness(1.45) saturate(1.05);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -47,13 +133,13 @@ body::before {
   z-index: 0;
   opacity: .5;
   background-image:
-    repeating-linear-gradient(0deg, rgba(120,110,90,.035) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(120,110,90,.025) 0 1px, transparent 1px 4px);
+    repeating-linear-gradient(0deg, var(--grain-a) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, var(--grain-b) 0 1px, transparent 1px 4px);
 }
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); position: relative; z-index: 1; }
 
-a { color: var(--accent-ink); text-decoration-color: rgba(178,58,42,.35); text-underline-offset: 3px; }
+a { color: var(--accent-ink); text-decoration-color: var(--link-rule); text-underline-offset: 3px; }
 a:hover { text-decoration-color: var(--accent); }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
@@ -62,7 +148,7 @@ a:hover { text-decoration-color: var(--accent); }
 
 .topbar {
   position: sticky; top: 0; z-index: 40;
-  background: rgba(247,243,234,.94);
+  background: var(--topbar-bg);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--rule);
 }
@@ -97,6 +183,20 @@ a:hover { text-decoration-color: var(--accent); }
   white-space: nowrap; border-bottom: 1px solid transparent; padding-bottom: 2px;
 }
 .toplink:hover { color: var(--ink); border-color: var(--accent); }
+
+/* Light/dark switch. theme.js unhides it, so it is never a dead control. */
+.themebtn {
+  appearance: none; display: inline-flex; align-items: center; gap: 7px;
+  cursor: pointer; font-family: var(--mono); font-size: 10.5px; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-soft); background: none;
+  border: 1px solid var(--rule); border-radius: 999px; padding: 5px 10px 5px 9px;
+  white-space: nowrap; transition: color .15s, border-color .15s;
+}
+.themebtn:hover { color: var(--ink); border-color: var(--ink-soft); }
+.themebtn__icon {
+  width: 10px; height: 10px; border-radius: 50%; border: 1px solid currentColor;
+  background: linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%);
+}
 
 /* ---------- hero ---------- */
 
@@ -158,7 +258,7 @@ h1 em { font-style: italic; color: var(--accent); }
   letter-spacing: .07em; text-transform: uppercase; color: var(--muted);
   display: flex; flex-wrap: wrap; gap: 4px 18px;
 }
-.pagestamp a { color: var(--muted); text-decoration-color: rgba(109,103,90,.4); }
+.pagestamp a { color: var(--muted); text-decoration-color: var(--muted-rule); }
 .pagestamp a:hover { color: var(--accent-ink); text-decoration-color: var(--accent); }
 
 /* ---------- panels ---------- */
@@ -183,7 +283,7 @@ h1 em { font-style: italic; color: var(--accent); }
   background: var(--paper-2); border: 1px solid var(--rule); border-radius: 3px;
   padding: 12px 14px 12px 38px;
 }
-.searchfield input::placeholder { color: #948d7d; }
+.searchfield input::placeholder { color: var(--placeholder); }
 .searchfield svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); opacity: .45; }
 
 .btn {
@@ -192,7 +292,7 @@ h1 em { font-style: italic; color: var(--accent); }
   background: var(--ink); color: var(--paper); transition: transform .15s, background .15s;
   white-space: nowrap;
 }
-.btn:hover { background: #000; }
+.btn:hover { background: var(--btn-hover-bg); }
 .btn:active { transform: translateY(1px); }
 .btn--ghost { background: none; color: var(--ink); border-color: var(--rule); }
 .btn--ghost:hover { background: var(--paper-2); border-color: var(--ink); }
@@ -209,7 +309,7 @@ h1 em { font-style: italic; color: var(--accent); }
 }
 .chip:hover { border-color: var(--ink); color: var(--ink); }
 .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.chip .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 7px; vertical-align: 1px; }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 7px; vertical-align: 1px; filter: var(--dot-filter); }
 
 .resultbar {
   display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap;
@@ -238,11 +338,13 @@ h1 em { font-style: italic; color: var(--accent); }
 }
 .card:hover { background: var(--paper-2); }
 .card--open { background: var(--paper-2); }
+/* "Surprise me" lights the card it chose for a moment. */
+.card--flash { background: var(--highlight); }
 
 .card__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
 .card__num { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--muted); }
 .card__area { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.card__area .dot { width: 7px; height: 7px; border-radius: 50%; }
+.card__area .dot { width: 7px; height: 7px; border-radius: 50%; filter: var(--dot-filter); }
 
 .card h3 { font-family: var(--serif); font-size: 1.3rem; line-height: 1.22; font-weight: 600; letter-spacing: -.01em; margin: 0 0 6px; }
 .card__tag { font-size: 15px; color: var(--accent-ink); margin: 0 0 12px; font-weight: 500; }
@@ -266,7 +368,7 @@ h1 em { font-style: italic; color: var(--accent); }
 
 .suggest {
   grid-column: 1 / -1;
-  border: 1px dashed rgba(109, 103, 90, .5);
+  border: 1px dashed var(--dash);
   margin: -1px 0 0 -1px;
   padding: 26px 26px 24px;
   display: flex; flex-direction: column;
@@ -333,7 +435,7 @@ h1 em { font-style: italic; color: var(--accent); }
   align-self: start; border-left: 1px solid var(--rule); padding-left: 22px;
   font-size: 13.5px; color: var(--muted); max-width: 34ch;
 }
-.ask__aside h3 {
+.ask__aside h2 {
   font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--ink); margin: 0 0 14px; font-weight: 600;
 }
@@ -345,7 +447,7 @@ h1 em { font-style: italic; color: var(--accent); }
 
 .q { border-top: 1px solid var(--rule); padding-top: 22px; }
 .q__num { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.q h3 { font-family: var(--serif); font-size: clamp(1.35rem, 2.6vw, 1.85rem); font-weight: 600; letter-spacing: -.015em; margin: 8px 0 20px; max-width: 30ch; }
+.q h2 { font-family: var(--serif); font-size: clamp(1.35rem, 2.6vw, 1.85rem); font-weight: 600; letter-spacing: -.015em; margin: 8px 0 20px; max-width: 30ch; }
 
 .options { display: grid; gap: 1px; background: var(--rule-soft); border: 1px solid var(--rule-soft); }
 .option {
@@ -362,7 +464,7 @@ h1 em { font-style: italic; color: var(--accent); }
 .option b { font-weight: 600; font-size: 15.5px; display: block; }
 .option small { color: var(--muted); font-size: 13px; display: block; margin-top: 2px; }
 .option[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.option[aria-pressed="true"] small, .option[aria-pressed="true"] .option__key { color: rgba(247,243,234,.62); }
+.option[aria-pressed="true"] small, .option[aria-pressed="true"] .option__key { color: var(--on-ink-soft); }
 
 .ask__nav { display: flex; gap: 10px; margin-top: 26px; align-items: center; }
 .ask__nav .spacer { flex: 1; }
@@ -485,7 +587,7 @@ footer { border-top: 1px solid var(--rule); padding: 40px 0 34px; }
 }
 .foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .foot li { line-height: 1.45; }
-.foot a { color: var(--ink-soft); text-decoration-color: rgba(109,103,90,.35); }
+.foot a { color: var(--ink-soft); text-decoration-color: var(--muted-rule); }
 
 .foot__bottom {
   display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
@@ -547,6 +649,15 @@ footer { border-top: 1px solid var(--rule); padding: 40px 0 34px; }
 /* No room beside the wordmark and the mode tabs on a phone; the footer link stands in. */
 @media (max-width: 480px) {
   .toplink { display: none; }
+}
+
+/* Below the tablet width the switch keeps its icon and its accessible name. */
+@media (max-width: 719px) {
+  .themebtn__text {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .themebtn { padding: 6px 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

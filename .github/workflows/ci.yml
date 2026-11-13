@@ -37,5 +37,8 @@ jobs:
       - name: Documented counts and dependency policy
         run: node tools/check-repo.mjs
 
+      - name: Theme tokens and contrast
+        run: node tools/check-contrast.mjs
+
       - name: Pages are valid HTML
         run: npm run check:html

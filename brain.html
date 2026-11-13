@@ -7,8 +7,12 @@
 <meta name="description" content="A four-layer map of Ideas for Here — catalog, page, server, MCP — drawn as an interactive brain scan, with a step-by-step guide to connecting the MCP server to an agent.">
 <link rel="canonical" href="https://abdullahalhusini5-code.github.io/ideas-for-here/brain.html">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f7f3ea">
 <style>
   :root {
+    color-scheme: light;
+
     --paper:      #f7f3ea;
     --paper-2:    #fdfbf5;
     --ink:        #17160f;
@@ -21,10 +25,101 @@
     --green:      #2f4a3a;
     --ochre:      #a97c3f;
     --slate:      #3f5a70;
+
+    /* Surfaces and washes that are not just ink on paper. */
+    --halo:        #fdfbf5;
+    --hover-bg:    #fffdf8;
+    --selection:   #e9c9bd;
+    --code-bg:     #efe8d8;
+    --guide-a:     rgba(237, 229, 213, .35);
+    --on-ink-faint: rgba(247, 243, 234, .22);
+    --dot-filter:  none;
+
+    /* The terminal blocks stay dark in both themes, so they carry their own set. */
+    --term-bg:        #17160f;
+    --term-ink:       #efe8d8;
+    --term-soft:      #8a8478;
+    --term-rule:      rgba(239, 232, 216, .28);
+    --term-wash:      rgba(239, 232, 216, .08);
+    --term-wash-hover: rgba(239, 232, 216, .18);
+    --term-focus:     #e2a08f;
+
     --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
     --sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
     --pad: clamp(18px, 4vw, 56px);
+  }
+
+  /* Same palette twice: the system setting, and the switch. Keep them identical;
+     tools/check-contrast.mjs fails when the two blocks disagree. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+
+      --paper:      #15140f;
+      --paper-2:    #1d1b15;
+      --ink:        #f3eee2;
+      --ink-soft:   #d3cbb8;
+      --muted:      #a8a08c;
+      --rule:       #3b362b;
+      --rule-soft:  #2a271f;
+      --accent:     #e2806a;
+      --accent-ink: #eea48f;
+      --green:      #8fb99f;
+      --ochre:      #d0a468;
+      --slate:      #7fa3bd;
+
+      --halo:        #1d1b15;
+      --hover-bg:    #23211a;
+      --selection:   #4a3a34;
+      --code-bg:     #26231b;
+      --guide-a:     rgba(90, 80, 58, .35);
+      --on-ink-faint: rgba(21, 20, 15, .25);
+      --dot-filter:  brightness(1.45) saturate(1.05);
+
+      --term-bg:        #0d0c09;
+      --term-ink:       #f3eee2;
+      --term-soft:      rgba(243, 238, 226, .5);
+      --term-rule:      rgba(243, 238, 226, .3);
+      --term-wash:      rgba(243, 238, 226, .1);
+      --term-wash-hover: rgba(243, 238, 226, .2);
+      --term-focus:     #f0b3a2;
+    }
+  }
+
+  :root[data-theme="light"] { color-scheme: light; }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --paper:      #15140f;
+    --paper-2:    #1d1b15;
+    --ink:        #f3eee2;
+    --ink-soft:   #d3cbb8;
+    --muted:      #a8a08c;
+    --rule:       #3b362b;
+    --rule-soft:  #2a271f;
+    --accent:     #e2806a;
+    --accent-ink: #eea48f;
+    --green:      #8fb99f;
+    --ochre:      #d0a468;
+    --slate:      #7fa3bd;
+
+    --halo:        #1d1b15;
+    --hover-bg:    #23211a;
+    --selection:   #4a3a34;
+    --code-bg:     #26231b;
+    --guide-a:     rgba(90, 80, 58, .35);
+    --on-ink-faint: rgba(21, 20, 15, .25);
+    --dot-filter:  brightness(1.45) saturate(1.05);
+
+    --term-bg:        #0d0c09;
+    --term-ink:       #f3eee2;
+    --term-soft:      rgba(243, 238, 226, .5);
+    --term-rule:      rgba(243, 238, 226, .3);
+    --term-wash:      rgba(243, 238, 226, .1);
+    --term-wash-hover: rgba(243, 238, 226, .2);
+    --term-focus:     #f0b3a2;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -40,13 +135,13 @@
     font-size: 16.5px;
     line-height: 1.62;
     -webkit-font-smoothing: antialiased;
-    background-image: radial-gradient(120% 60% at 50% -10%, #fdfbf5 0%, rgba(253,251,245,0) 60%);
+    background-image: radial-gradient(120% 60% at 50% -10%, var(--halo) 0%, transparent 60%);
   }
 
   a { color: inherit; }
   a:hover { color: var(--accent-ink); }
   code, pre { font-family: var(--mono); }
-  ::selection { background: #e9c9bd; }
+  ::selection { background: var(--selection); }
 
   .wrap { max-width: 1180px; margin: 0 auto; padding: 0 var(--pad); }
 
@@ -75,7 +170,19 @@
     font-size: 12px; letter-spacing: .04em; white-space: nowrap;
   }
   .top nav a.back span { font-size: 14px; line-height: 1; }
-  .top nav a.back:hover { color: var(--ink); border-color: var(--ink-soft); background: #fffdf8; }
+  .top nav a.back:hover { color: var(--ink); border-color: var(--ink-soft); background: var(--hover-bg); }
+
+  .themebtn {
+    appearance: none; display: inline-flex; align-items: center; gap: 7px;
+    cursor: pointer; font: inherit; font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-soft); background: none;
+    border: 1px solid var(--rule); border-radius: 999px; padding: 5px 10px 5px 9px;
+  }
+  .themebtn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .themebtn__icon {
+    width: 10px; height: 10px; border-radius: 50%; border: 1px solid currentColor;
+    background: linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%);
+  }
 
   /* ---------- hero ---------- */
 
@@ -142,9 +249,9 @@
     transition: background .15s, color .15s, border-color .15s;
   }
   .chip:hover { border-color: var(--ink-soft); color: var(--ink); }
-  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--dot, var(--muted)); }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--dot, var(--muted)); filter: var(--dot-filter); }
   .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-  .chip[aria-pressed="true"] i { box-shadow: 0 0 0 2px rgba(247, 243, 234, .22); }
+  .chip[aria-pressed="true"] i { box-shadow: 0 0 0 2px var(--on-ink-faint); }
 
   .axis { display: flex; align-items: center; gap: 10px; flex: 1 1 170px; min-width: 150px; }
   .axis label {
@@ -198,7 +305,7 @@
 
   .files { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; }
   .files code {
-    background: #efe8d8; border: 1px solid var(--rule);
+    background: var(--code-bg); border: 1px solid var(--rule);
     padding: 3px 7px; font-size: 11.5px; color: var(--ink-soft);
   }
 
@@ -240,7 +347,7 @@
 
   /* ---------- guide ---------- */
 
-  .guide { background: linear-gradient(180deg, rgba(237, 229, 213, .35), rgba(237, 229, 213, 0) 220px); }
+  .guide { background: linear-gradient(180deg, var(--guide-a), transparent 220px); }
   .steps { list-style: none; margin: 0; padding: 0; }
   .step {
     display: grid; grid-template-columns: 62px minmax(0, 1fr);
@@ -257,32 +364,32 @@
   .step > div > p { margin: 0 0 12px; color: var(--ink-soft); max-width: 70ch; }
   .step p:last-child { margin-bottom: 0; }
   .step code.inline {
-    background: #efe8d8; border: 1px solid var(--rule);
+    background: var(--code-bg); border: 1px solid var(--rule);
     padding: 1px 5px; font-size: 12.5px; white-space: nowrap;
   }
 
   .code {
-    position: relative; background: #17160f; color: #efe8d8;
-    margin: 12px 0 0; border: 1px solid #17160f;
+    position: relative; background: var(--term-bg); color: var(--term-ink);
+    margin: 12px 0 0; border: 1px solid var(--term-bg);
   }
   .code pre {
     margin: 0; padding: 16px 18px; overflow-x: auto;
     font-size: 12.5px; line-height: 1.7; tab-size: 2;
   }
   .code--tagged pre { padding-top: 34px; }
-  .code__tag {
+  .tabpanel .code__tag {
     position: absolute; top: 10px; left: 18px; margin: 0;
     font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
-    color: rgba(239, 232, 216, .45);
+    color: var(--term-soft);
   }
   .copy {
     position: absolute; top: 8px; right: 8px;
-    border: 1px solid rgba(239, 232, 216, .28); background: rgba(239, 232, 216, .08);
-    color: #efe8d8; font: inherit; font-size: 10.5px; letter-spacing: .08em;
+    border: 1px solid var(--term-rule); background: var(--term-wash);
+    color: var(--term-ink); font: inherit; font-size: 10.5px; letter-spacing: .08em;
     text-transform: uppercase; padding: 4px 8px; cursor: pointer;
   }
-  .copy:hover { background: rgba(239, 232, 216, .18); }
-  .copy:focus-visible { outline: 2px solid #e2a08f; outline-offset: 1px; }
+  .copy:hover { background: var(--term-wash-hover); }
+  .copy:focus-visible { outline: 2px solid var(--term-focus); outline-offset: 1px; }
 
   .note {
     margin: 14px 0 0; padding: 2px 0 2px 14px;
@@ -381,6 +488,7 @@
     .tabs, .controls, .copy { display: none !important; }
   </style>
 </noscript>
+<script src="theme.js"></script>
 </head>
 <body>
 
@@ -391,6 +499,9 @@
       <a class="back" href="index.html"><span aria-hidden="true">←</span>Back<span class="back__rest"> to the catalog</span></a>
       <a href="#mcp">MCP guide</a>
       <a href="https://github.com/abdullahalhusini5-code/ideas-for-here" rel="noopener">Source</a>
+      <button class="themebtn" type="button" id="theme-toggle" aria-pressed="false" hidden>
+        <span class="themebtn__icon" aria-hidden="true"></span><span>Dark</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -798,6 +909,7 @@ node tools\check-links.js</pre>
   ];
 
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var darkMedia = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
   var v = 0;            /* fourth axis, 0..1 */
   var active = 0;       /* layer under the scan line */
   var yaw = -0.55;
@@ -813,6 +925,7 @@ node tools\check-links.js</pre>
   var canvas = document.getElementById("brain");
   var ctx = canvas.getContext("2d");
   var W = 0, H = 0, DPR = 1;
+  var paletteCache = null;
 
   var SLICES = 54;
   var RING = 92;
@@ -858,6 +971,49 @@ node tools\check-links.js</pre>
     return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + alpha + ")";
   }
 
+  /* Blend two hex colours; used to lift the layer colours off a dark ground. */
+  function mix(hex, target, amount) {
+    var a = parseInt(hex.slice(1), 16);
+    var b = parseInt(target.slice(1), 16);
+    var channel = function (shift) {
+      var x = (a >> shift) & 255;
+      var y = (b >> shift) & 255;
+      return Math.round(x + (y - x) * amount);
+    };
+    return "#" + ((1 << 24) + (channel(16) << 16) + (channel(8) << 8) + channel(0)).toString(16).slice(1);
+  }
+
+  /* The canvas cannot read CSS variables, so it asks for them once per theme. */
+  function palette() {
+    if (paletteCache) return paletteCache;
+
+    var style = getComputedStyle(document.documentElement);
+    var read = function (name) { return style.getPropertyValue(name).trim(); };
+    var set = document.documentElement.getAttribute("data-theme");
+    var dark = set ? set === "dark" : Boolean(darkMedia && darkMedia.matches);
+
+    paletteCache = {
+      ink: read("--ink"),
+      muted: read("--muted"),
+      paper2: read("--paper-2"),
+      rule: read("--rule"),
+      accent: read("--accent"),
+      fill: dark ? 0.1 : 0.05,
+      glow: dark ? "196, 172, 120" : "214, 205, 184",
+      glowAlpha: dark ? 0.16 : 0.28,
+      layer: LAYERS.map(function (layer) {
+        return dark ? mix(layer.color, "#ffffff", 0.42) : layer.color;
+      })
+    };
+    return paletteCache;
+  }
+
+  /* The switch tells the drawing to read the tokens again. */
+  document.addEventListener("ideas:theme", function () {
+    paletteCache = null;
+    if (W) draw(performance.now());
+  });
+
   function projector() {
     var wide = W > 560;
     var scale = Math.min(W * (wide ? 0.60 : 0.80), H * 0.94) * 0.46;
@@ -877,6 +1033,7 @@ node tools\check-links.js</pre>
 
   function draw(now) {
     if (!ctx || !W) return;
+    var pal = palette();
     ctx.clearRect(0, 0, W, H);
 
     var sep = smoothstep((v - 0.18) / 0.76);
@@ -912,14 +1069,14 @@ node tools\check-links.js</pre>
 
     /* Soft pool of light behind the scan. */
     var glow = ctx.createRadialGradient(W * 0.44, H * 0.52, 10, W * 0.44, H * 0.52, Math.max(W, H) * 0.5);
-    glow.addColorStop(0, "rgba(214, 205, 184, 0.28)");
-    glow.addColorStop(1, "rgba(214, 205, 184, 0)");
+    glow.addColorStop(0, "rgba(" + pal.glow + ", " + pal.glowAlpha + ")");
+    glow.addColorStop(1, "rgba(" + pal.glow + ", 0)");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
 
     for (k = 0; k < segs.length; k += 1) {
       var seg = segs[k];
-      var colour = LAYERS[seg.slice.layer].color;
+      var colour = pal.layer[seg.slice.layer];
       var isActive = seg.slice.layer === active;
       var alpha = 0.34 * (0.45 + 0.55 * seg.centre.near);
       var width = 0.65;
@@ -940,7 +1097,7 @@ node tools\check-links.js</pre>
       ctx.closePath();
 
       if (isActive && sep > 0.3) {
-        ctx.fillStyle = rgba(colour, 0.05);
+        ctx.fillStyle = rgba(colour, pal.fill);
         ctx.fill();
       }
       ctx.strokeStyle = rgba(colour, alpha);
@@ -955,7 +1112,7 @@ node tools\check-links.js</pre>
 
     ctx.save();
     ctx.setLineDash([2, 5]);
-    ctx.strokeStyle = rgba(LAYERS[active].color, 0.5);
+    ctx.strokeStyle = rgba(pal.layer[active], 0.5);
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(16, band.y);
@@ -963,21 +1120,21 @@ node tools\check-links.js</pre>
     ctx.stroke();
     ctx.restore();
 
-    ctx.fillStyle = "rgba(109, 103, 90, 0.9)";
+    ctx.fillStyle = rgba(pal.muted, 0.9);
     ctx.font = '10px ui-monospace, "Cascadia Mono", Consolas, monospace';
     ctx.textBaseline = "bottom";
     var wLabel = "w " + v.toFixed(2);
     var wWidth = ctx.measureText(wLabel).width;
-    ctx.fillStyle = "rgba(253, 251, 245, 0.92)";
+    ctx.fillStyle = rgba(pal.paper2, 0.92);
     ctx.fillRect(14, band.y - 17, wWidth + 6, 13);
-    ctx.fillStyle = "rgba(109, 103, 90, 0.9)";
+    ctx.fillStyle = rgba(pal.muted, 0.9);
     ctx.fillText(wLabel, 16, band.y - 5);
 
     /* Legend rail. */
     if (W > 560) {
       var top = H * 0.2;
       var bottom = H * 0.8;
-      ctx.strokeStyle = "rgba(214, 205, 184, 0.9)";
+      ctx.strokeStyle = rgba(pal.rule, 0.9);
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(railX, top - 12);
@@ -990,11 +1147,11 @@ node tools\check-links.js</pre>
         var on = li === active;
         ctx.beginPath();
         ctx.arc(railX, ly, on ? 3.4 : 2.2, 0, Math.PI * 2);
-        ctx.fillStyle = on ? LAYERS[li].color : rgba(LAYERS[li].color, 0.55);
+        ctx.fillStyle = on ? pal.layer[li] : rgba(pal.layer[li], 0.55);
         ctx.fill();
 
         ctx.font = (on ? "600 " : "400 ") + '10px "Segoe UI", system-ui, sans-serif';
-        ctx.fillStyle = on ? "#17160f" : "rgba(109, 103, 90, 0.9)";
+        ctx.fillStyle = on ? pal.ink : rgba(pal.muted, 0.9);
         ctx.textBaseline = "middle";
         ctx.fillText(LAYERS[li].name.toUpperCase(), railX + 12, ly);
       }
@@ -1007,7 +1164,7 @@ node tools\check-links.js</pre>
       if (pulse) {
         ctx.beginPath();
         ctx.arc(pulse.x, pulse.y, 1.8, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(178, 58, 42, 0.55)";
+        ctx.fillStyle = rgba(pal.accent, 0.55);
         ctx.fill();
       }
     }
