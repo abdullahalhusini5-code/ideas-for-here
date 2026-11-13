@@ -44,6 +44,7 @@
     qIndex: 0,
     remixSeed: 1,
     open: new Set(),
+    shortlist: new Set(),
     deepIdea: null
   };
 
@@ -63,10 +64,11 @@
   /* Tabs                                                                */
   /* ------------------------------------------------------------------ */
 
-  const tabOrder = ["browse", "ask"];
+  const tabOrder = ["browse", "ask", "shortlist"];
   const tabs = {
     browse: { tab: $("#tab-browse"), panel: $("#panel-browse") },
-    ask: { tab: $("#tab-ask"), panel: $("#panel-ask") }
+    ask: { tab: $("#tab-ask"), panel: $("#panel-ask") },
+    shortlist: { tab: $("#tab-shortlist"), panel: $("#panel-shortlist") }
   };
 
   function selectedTab() {
@@ -81,15 +83,23 @@
       tabs[key].panel.hidden = !on;
     });
     const hero = $("#hero");
-    if (hero) hero.hidden = name === "ask";
+    if (hero) hero.hidden = name !== "browse";
     if (name === "ask") renderQuestion();
     if (name === "browse") placeSuggest();
+    if (name === "shortlist") renderShortlist();
     if (moveFocus) tabs[name].tab.focus();
   }
 
   tabOrder.forEach((name) => {
     tabs[name].tab.tabIndex = name === "browse" ? 0 : -1;
     tabs[name].tab.addEventListener("click", () => showTab(name));
+  });
+
+  $("#btn-shortlist-clear").addEventListener("click", () => {
+    state.shortlist.clear();
+    saveShortlist();
+    renderShortlist();
+    syncShortlistCount();
   });
 
   $(".modeswitch").addEventListener("keydown", (e) => {
@@ -193,6 +203,65 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Shortlist (kept only in this browser)                              */
+  /* ------------------------------------------------------------------ */
+
+  const SHORTLIST_KEY = "ideas-shortlist";
+
+  function loadShortlist() {
+    try {
+      const raw = localStorage.getItem(SHORTLIST_KEY);
+      if (raw) {
+        const ids = JSON.parse(raw);
+        if (Array.isArray(ids)) {
+          ids.forEach((id) => state.shortlist.add(id));
+        }
+      }
+    } catch (err) {
+      /* Storage blocked: the shortlist works for this visit only. */
+    }
+  }
+
+  function saveShortlist() {
+    try {
+      localStorage.setItem(SHORTLIST_KEY, JSON.stringify([...state.shortlist]));
+    } catch (err) {
+      /* Nothing to persist this visit. */
+    }
+  }
+
+  function toggleShortlist(idea) {
+    if (state.shortlist.has(idea.id)) state.shortlist.delete(idea.id);
+    else state.shortlist.add(idea.id);
+    saveShortlist();
+  }
+
+  function syncShortlistCount() {
+    const n = state.shortlist.size;
+    const btn = $("#tab-shortlist");
+    const badge = $("#shortlist-count");
+    if (badge) badge.textContent = String(n);
+    if (btn) {
+      btn.setAttribute("aria-label", n
+        ? `Your shortlist, ${n} saved`
+        : "Your shortlist");
+    }  }
+
+  function renderShortlist() {
+    const grid = $("#shortlist-grid");
+    grid.innerHTML = "";
+    const list = [...state.shortlist]
+      .map((id) => byId(IDEAS, id))
+      .filter(Boolean);
+    list.forEach((idea) => grid.appendChild(cardEl(idea)));
+    if (!list.length) {
+      const empty = el("p", "grid__note");
+      empty.textContent = "Your shortlist is empty. Open any card and save it to come back here.";
+      grid.appendChild(empty);
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Shareable state                                                     */
   /* ------------------------------------------------------------------ */
 
@@ -290,7 +359,27 @@
     const areaTag = el("span", "card__area");
     const dot = el("i", "dot"); dot.style.background = area.colour;
     areaTag.append(dot, document.createTextNode(area.label));
-    top.append(num, areaTag);
+    const save = el("button", "card__save");
+    save.type = "button";
+    save.setAttribute("aria-pressed", String(state.shortlist.has(idea.id)));
+    save.setAttribute("aria-label", state.shortlist.has(idea.id)
+      ? "Remove this idea from your shortlist"
+      : "Save this idea to your shortlist");
+    save.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+    save.addEventListener("click", () => {
+      toggleShortlist(idea);
+      const on = state.shortlist.has(idea.id);
+      save.setAttribute("aria-pressed", String(on));
+      save.setAttribute("aria-label", on
+        ? "Remove this idea from your shortlist"
+        : "Save this idea to your shortlist");
+      syncShortlistCount();
+      if (!document.getElementById("panel-shortlist").hidden) {
+        renderShortlist();
+        $("#tab-shortlist").focus();
+      }
+    });
+    top.append(num, areaTag, save);
 
     const h3 = el("h3"); h3.textContent = idea.title;
     const tag = el("p", "card__tag"); tag.textContent = idea.tagline;
@@ -905,6 +994,8 @@
 
     readUrlState();
     buildChips();
+    loadShortlist();
+    syncShortlistCount();
     renderGrid();
     renderRemix();
     renderQuestion();

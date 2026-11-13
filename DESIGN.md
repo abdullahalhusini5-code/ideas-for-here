@@ -56,6 +56,10 @@ Top three are shown in full (description, the first moves, what you'll need, and
 starting links that apply). The next eight appear as a compact list that jumps into the
 catalog with the area filter already applied.
 
+**Shortlist.** Open any card and press its save button to mark it; saved ideas appear in
+a "Your shortlist" tab, kept only in this browser's `localStorage` and cleared on demand.
+Nothing is sent anywhere.
+
 Ties break by how many of your four answers matched, then alphabetically — never
 randomly — so the same answers always give the same page.
 

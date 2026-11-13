@@ -61,6 +61,7 @@
       <div class="modeswitch" role="tablist" aria-label="How to use this page">
         <button type="button" role="tab" id="tab-browse" aria-selected="true" aria-controls="panel-browse">Browse all</button>
         <button type="button" role="tab" id="tab-ask" aria-selected="false" aria-controls="panel-ask">Match me</button>
+        <button type="button" role="tab" id="tab-shortlist" aria-selected="false" aria-controls="panel-shortlist">Your shortlist <span class="badge" aria-hidden="true" id="shortlist-count">0</span></button>
       </div>
       <a class="toplink" href="brain.html">The brain <span aria-hidden="true">→</span></a>
       <button class="themebtn" type="button" id="theme-toggle" aria-pressed="false" hidden>
@@ -198,6 +199,18 @@
         </div>
       </div>
     </section>
+
+    <!-- ============ SHORTLIST ============ -->
+    <section class="panel" id="panel-shortlist" role="tabpanel" aria-labelledby="tab-shortlist" hidden>
+      <div class="sectionhead">
+        <div>
+          <h2>Your shortlist</h2>
+          <p>Ideas you marked to come back to. They are kept only in this browser, and vanish when you clear them.</p>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="btn-shortlist-clear" type="button">Clear your shortlist</button>
+      </div>
+      <div class="grid" id="shortlist-grid"></div>
+    </section>
   </div>
 </main>
 
@@ -240,7 +253,7 @@
     <div class="about__grid">
       <article class="note" id="privacy">
         <h3>Privacy</h3>
-        <p>No accounts, no cookies, no analytics, no advertising, no third-party scripts. The page stores nothing, not even in your browser: your answers live in memory and vanish when you close the tab. “Copy this brief” writes to your clipboard and nowhere else.</p>
+        <p>No accounts, no cookies, no analytics, no advertising, no third-party scripts. The page stores nothing on a server: your answers live in memory and vanish when you close the tab. Your shortlist is kept only in this browser until you clear it, and “Copy this brief” writes to your clipboard and nowhere else.</p>
         <p>The host, GitHub Pages, keeps standard server logs — IP address, browser, time, page requested — for security and abuse. GitHub's <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">privacy statement</a> covers that. Links to other sites open in a new tab; once you follow one, that site's policy applies.</p>
       </article>
       <article class="note" id="licence">

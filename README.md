@@ -211,4 +211,6 @@ still records standard server logs as the host; the in-page privacy note says so
   region announces them.
 - **Structure:** one `h1` per page, heading order never skips a level, real buttons with
   `aria-pressed` / `aria-expanded`, a skip link, and `prefers-reduced-motion` honoured.
+- **Shortlist:** save ideas from any card; kept only in this browser (`localStorage`) and
+  listed in their own tab, with keyboard reachable controls.
 - **Everything works at 320 px wide, and nothing is injected by a build step.**
