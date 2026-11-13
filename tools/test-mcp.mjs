@@ -510,12 +510,140 @@ async function testHttp() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Server guardrails                                                  */
+/* ------------------------------------------------------------------ */
+
+function startHttpGuard(args = [], env = {}) {
+  const child = spawn(process.execPath, [path.join(ROOT, "server.mjs"), ...args], {
+    cwd: ROOT,
+    env: { ...process.env, ...env },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  return new Promise((resolve, reject) => {
+    let out = "", err = "", done = false;
+    const timer = setTimeout(() => { done = true; child.kill(); reject(new Error("guardrail server did not start")); }, 6000);
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (c) => { out += c; });
+    child.stderr.on("data", (c) => { err += c; });
+    const giveUp = (code) => { if (done) return; done = true; clearTimeout(timer); child.removeListener("exit", giveUp); reject(new Error(`server exited with code ${code}; stderr: ${err}`)); };
+    child.on("exit", giveUp);
+    child.stdout.on("data", () => {
+      const match = /http:\/\/([^\s:/]+):(\d+)\//.exec(out);
+      if (match) {
+        done = true;
+        clearTimeout(timer);
+        child.removeListener("exit", giveUp);
+        resolve({ child, base: `http://127.0.0.1:${match[2]}`, host: match[1], out, err });
+      }
+    });
+  });
+}
+
+async function postRaw(base, path, body, headers = {}) {
+  return fetch(`${base}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    body
+  });
+}
+
+async function testGuardrails() {
+  console.log("\nServer guardrails");
+
+  const { child: c1, base: b1 } = await startHttpGuard(["--port", "0", "--read-only"]);
+  try {
+    const health = await fetch(`${b1}/health`);
+    await test("binds to loopback by default", async () => {
+      assert.equal(health.status, 200);
+      const body = await health.json();
+      assert.equal(body.ok, true);
+    });
+
+    const big = JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { padding: "x".repeat(300_000) } });
+    const tooLarge = await postRaw(b1, "/mcp", big);
+    await test("/mcp bodies over 256 KB get 413", () => {
+      assert.equal(tooLarge.status, 413);
+    });
+
+    const crossOrigin = await postRaw(b1, "/mcp", JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }), { origin: "https://evil.example" });
+    await test("a cross-site Origin is refused", () => {
+      assert.equal(crossOrigin.status, 403);
+    });
+
+    const crossSite = await postRaw(b1, "/mcp", JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }), { "sec-fetch-site": "cross-site" });
+    await test("Sec-Fetch-Site: cross-site is refused", () => {
+      assert.equal(crossSite.status, 403);
+    });
+
+    const sameOrigin = await postRaw(b1, "/mcp", JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }), { origin: `http://127.0.0.1:${new URL(b1).port}` });
+    await test("a same-origin Origin is allowed", async () => {
+      assert.equal(sameOrigin.status, 200);
+      const body = await sameOrigin.json();
+      assert.equal(body.jsonrpc, "2.0");
+    });
+
+    const noOrigin = await postRaw(b1, "/mcp", JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} }));
+    await test("no Origin header is allowed", async () => {
+      assert.equal(noOrigin.status, 200);
+    });
+
+    const modules = await fetch(`${b1}/node_modules/axe-core/axe.min.js`);
+    await test("/node_modules is not served", () => {
+      assert.equal(modules.status, 403);
+    });
+
+    const dotfile = await fetch(`${b1}/.gitignore`);
+    await test("dotfiles are not served", () => {
+      assert.equal(dotfile.status, 403);
+    });
+
+    const statuses = [];
+    for (let i = 0; i < 25; i += 1) {
+      statuses.push((await postRaw(b1, "/mcp", JSON.stringify({ jsonrpc: "2.0", id: i, method: "initialize", params: {} }))).status);
+    }
+    await test("a token bucket eventually answers 429", () => {
+      assert.ok(statuses.includes(429), `expected a 429 among ${JSON.stringify(statuses)}`);
+    });
+  } finally {
+    await stopChild(c1);
+  }
+
+  /* Explicit --host with a non-loopback address starts and warns. */
+  const { child: c2, err: err2 } = await startHttpGuard(["--host", "0.0.0.0", "--port", "0", "--read-only"]);
+  await stopChild(c2);
+  await test("explicit --host 0.0.0.0 starts and warns", () => {
+    assert.ok(/warning/i.test(err2), `expected a warning in stderr, got: ${err2}`);
+  });
+
+  /* A non-loopback HOST without --host is refused outright. */
+  const serverPath = path.join(ROOT, "server.mjs");
+  const refused = spawn(process.execPath, [serverPath], {
+    cwd: ROOT,
+    env: { ...process.env, HOST: "0.0.0.0" },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  let refusedErr = "";
+  refused.stderr.setEncoding("utf8");
+  refused.stderr.on("data", (c) => { refusedErr += c; });
+  const refusedCode = await new Promise((resolve) => {
+    refused.on("exit", (code) => resolve(code));
+    setTimeout(() => { try { refused.kill(); } catch {}; resolve(refused.exitCode); }, 4000);
+  });
+  await test("non-loopback HOST without --host is refused", () => {
+    assert.equal(refusedCode, 1);
+    assert.ok(/Refusing to bind/.test(refusedErr), `expected refusal in stderr, got: ${refusedErr}`);
+  });
+}
+
+/* ------------------------------------------------------------------ */
 
 await testData();
 if (!DATA_ONLY) {
   await testStdio();
   await testWrites();
   await testHttp();
+  await testGuardrails();
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

@@ -7,6 +7,10 @@
  * and the same MCP handler at /mcp over Streamable HTTP. Zero dependencies.
  * The public GitHub Pages site keeps working without this server; it reads
  * ideas.json directly and stays read-only.
+ *
+ * The server binds to loopback only. Passing --host with a non-loopback
+ * address prints a warning and binds anyway; anything that would bind to a
+ * non-loopback address without an explicit --host is refused.
  */
 import http from "node:http";
 import fs from "node:fs";
@@ -23,9 +27,25 @@ function argValue(name, fallback) {
 }
 
 const PORT = Number(argValue("--port", process.env.PORT || 4173));
+const HOST_GIVEN = process.argv.includes("--host");
 const HOST = argValue("--host", process.env.HOST || "127.0.0.1");
 const READ_ONLY = process.argv.includes("--read-only");
 const handleRpc = createRpcHandler({ readOnly: READ_ONLY });
+
+function isLoopback(host) {
+  const lower = String(host).toLowerCase();
+  if (lower === "localhost" || lower === "::1" || lower === "ip6-loopback") return true;
+  if (lower === "127.0.0.1" || lower.startsWith("127.")) return true;
+  return /^\[?::ffff:127\./.test(lower);
+}
+
+if (!isLoopback(HOST)) {
+  if (!HOST_GIVEN) {
+    console.error(`Refusing to bind to non-loopback host "${HOST}" without an explicit --host`);
+    process.exit(1);
+  }
+  console.error(`Warning: binding to non-loopback host "${HOST}" — keep it local`);
+}
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -47,7 +67,47 @@ const MIME = {
 /* No CORS headers on purpose: the page is same-origin, and a cross-site POST
  * of application/json triggers a preflight that now fails, so a random web
  * page cannot drive /mcp or write to the catalog through the local server.
- * Non-browser MCP clients are unaffected. */
+ * Non-browser MCP clients are unaffected.
+ *
+ * POST /mcp additionally refuses cross-site browser traffic: an Origin
+ * header that names another origin, or Sec-Fetch-Site: cross-site, is
+ * answered with 403. Missing or null Origin is allowed — non-browser MCP
+ * clients send neither header. Reads stay usable; the check exists so a
+ * malicious page cannot use the visitor's browser as a write endpoint.
+ */
+function sameOrigin(originHeader, hostHeader) {
+  if (!originHeader || originHeader === "null") return true;
+  try {
+    const o = new URL(originHeader);
+    const s = new URL(`http://${hostHeader || "127.0.0.1"}`);
+    return o.protocol === s.protocol && o.hostname === s.hostname && o.port === s.port;
+  } catch {
+    return false;
+  }
+}
+
+function crossSiteWrite(req) {
+  const origin = req.headers.origin;
+  const site = req.headers["sec-fetch-site"];
+  if (!sameOrigin(origin, req.headers.host)) return true;
+  return site === "cross-site";
+}
+
+/* A tiny token bucket per client address: 20 tokens, one refilled per
+ * second. Enough for normal use, enough to make brute-force unpleasant,
+ * few enough lines to keep in a single file. */
+const BUCKET = new Map();
+function limited(req) {
+  const now = Date.now();
+  const key = req.socket.remoteAddress || "unknown";
+  let b = BUCKET.get(key) || { tokens: 20, at: now };
+  b.tokens = Math.min(20, b.tokens + (now - b.at) / 1000);
+  b.at = now;
+  BUCKET.set(key, b);
+  if (b.tokens < 1) return true;
+  b.tokens -= 1;
+  return false;
+}
 
 function send(res, status, body, headers = {}) {
   const payload = Buffer.isBuffer(body) ? body : Buffer.from(body || "", "utf8");
@@ -78,7 +138,7 @@ function resolveStatic(urlPath) {
   const rel = decoded === "/" ? "index.html" : decoded.replace(/^\/+/, "");
   const parts = rel.split("/");
   const lower = rel.toLowerCase();
-  if (!rel || parts.some((part) => !part || part.startsWith("."))) return null;
+  if (!rel || parts.some((part) => !part || part.startsWith(".") || part === "node_modules")) return null;
   if (/^(mcp|tools)(\/|$)/.test(lower)) return null;
   const full = path.resolve(ROOT, rel);
   const back = path.relative(ROOT, full);
@@ -133,9 +193,14 @@ async function handleMcp(req, res) {
     return;
   }
 
+  if (crossSiteWrite(req)) {
+    send(res, 403, "Cross-site writes are refused.\n", { "Content-Type": "text/plain; charset=utf-8" });
+    return;
+  }
+
   let body;
   try {
-    body = await readBody(req);
+    body = await readBody(req, 256 * 1024);
   } catch (err) {
     if (err.code === "TOO_LARGE") {
       json(res, 413, { jsonrpc: "2.0", id: null, error: { code: -32600, message: err.message } });
@@ -208,6 +273,10 @@ async function handleMcp(req, res) {
 }
 
 async function handleRequest(req, res) {
+  if (limited(req)) {
+    send(res, 429, "Too many requests.\n", { "Content-Type": "text/plain; charset=utf-8", "Retry-After": "1" });
+    return;
+  }
   let url;
   try {
     url = new URL(req.url, `http://${req.headers.host || "127.0.0.1"}`);
