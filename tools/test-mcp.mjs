@@ -14,6 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DATA_FILE, readCatalog, validateCatalog, REQUIRED_STRINGS } from "../mcp/core.mjs";
 import { validate as validateSchema, lintSchema } from "./schema-lite.mjs";
+import { matchQuery } from "../matcher.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_ONLY = process.argv.includes("--data-only");
@@ -636,6 +637,101 @@ async function testGuardrails() {
   });
 }
 
+/* Search matcher                                                     */
+/* ------------------------------------------------------------------ */
+
+async function testMatcher() {
+  console.log("\nSearch matcher");
+  const data = readCatalog();
+  const areaLabelOf = (id) => {
+    const a = data.areas.find((x) => x.id === id);
+    return a ? a.label : "";
+  };
+
+  /* query -> expected idea ids. Regenerate with tools/gen-table.mjs if the
+     matcher or the catalog changes; this table is the deliberate contract. */
+  const cases = [
+    ["water", ["bill-split", "building-board", "garden-calendar", "meter-reader", "outage-map"]],
+    ["rubbish", ["pothole-report"]],
+    ["school", ["bread-coach", "chores-allowance", "first-cv", "fridge-recipes", "hobby-coach",
+      "lost-found", "medicine-reminder", "school-deadlines", "volunteer-shifts", "weekend-kids"]],
+    ["egg", ["market-prices"]],
+    ["invoice", ["trade-invoice"]],
+    ["celebration", ["gift-budget"]],
+    ["baking", ["bread-coach", "home-baker-catalog"]],
+    ["car", ["appointment-log", "building-board", "car-service", "two-currencies"]],
+    ["cv", ["first-cv"]],
+    ["paperwork", ["appointment-log", "car-service", "paperwork-checklist", "school-deadlines"]],
+    ["waste", ["pothole-report"]],
+    ["bikes", ["skill-swap"]],
+    ["medicine", ["appointment-log", "medicine-reminder"]],
+    ["water calorie", []],
+    ["gibberishxyz", []]
+  ];
+
+  function check(query, expected) {
+    const got = data.ideas
+      .filter((idea) => matchQuery(idea, query, areaLabelOf(idea.area)))
+      .map((idea) => idea.id)
+      .sort();
+    assert.deepEqual(got, expected);
+  }
+
+  await test("search matches “water”", () => {
+    check("water", ["bill-split", "building-board", "garden-calendar", "meter-reader", "outage-map"]);
+  });
+  await test("search matches “rubbish”", () => {
+    check("rubbish", ["pothole-report"]);
+  });
+  await test("search matches “school”", () => {
+    check("school", ["bread-coach", "chores-allowance", "first-cv", "fridge-recipes", "hobby-coach",
+      "lost-found", "medicine-reminder", "school-deadlines", "volunteer-shifts", "weekend-kids"]);
+  });
+  await test("search matches “egg”", () => {
+    check("egg", ["market-prices"]);
+  });
+  await test("search matches “invoice”", () => {
+    check("invoice", ["trade-invoice"]);
+  });
+  await test("search matches “celebration”", () => {
+    check("celebration", ["gift-budget"]);
+  });
+  await test("search matches “baking”", () => {
+    check("baking", ["bread-coach", "home-baker-catalog"]);
+  });
+  await test("search matches “car”", () => {
+    check("car", ["appointment-log", "building-board", "car-service", "two-currencies"]);
+  });
+  await test("search matches “cv”", () => {
+    check("cv", ["first-cv"]);
+  });
+  await test("search matches “paperwork”", () => {
+    check("paperwork", ["appointment-log", "car-service", "paperwork-checklist", "school-deadlines"]);
+  });
+  await test("search matches “waste”", () => {
+    check("waste", ["pothole-report"]);
+  });
+  await test("search matches “bikes”", () => {
+    check("bikes", ["skill-swap"]);
+  });
+  await test("search matches “medicine”", () => {
+    check("medicine", ["appointment-log", "medicine-reminder"]);
+  });
+  await test("search matches “water calorie”", () => {
+    check("water calorie", []);
+  });
+  await test("search matches “gibberishxyz”", () => {
+    check("gibberishxyz", []);
+  });
+
+  await test("search matcher rejects an empty query", () => {
+    for (const idea of data.ideas) {
+      assert.equal(matchQuery(idea, "", areaLabelOf(idea.area)), false);
+      assert.equal(matchQuery(idea, "   ", areaLabelOf(idea.area)), false);
+    }
+  });
+}
+
 /* ------------------------------------------------------------------ */
 
 await testData();
@@ -643,6 +739,7 @@ if (!DATA_ONLY) {
   await testStdio();
   await testWrites();
   await testHttp();
+  await testMatcher();
   await testGuardrails();
 }
 

@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { matchQuery, wordVariants } from "../matcher.mjs";
 
 export const SITE = "https://abdullahalhusini5-code.github.io/ideas-for-here";
 export const VERSION = "1.0.0";
@@ -172,41 +173,52 @@ export function ideaText(data, idea) {
   return lines.join("\n");
 }
 
-function snippet(text, query, radius = 70) {
-  const at = text.toLowerCase().indexOf(query.toLowerCase());
-  if (at < 0) return text.slice(0, radius * 2) + (text.length > radius * 2 ? "…" : "");
-  const start = Math.max(0, at - radius);
-  const end = Math.min(text.length, at + query.length + radius);
-  return `${start ? "…" : ""}${text.slice(start, end).trim()}${end < text.length ? "…" : ""}`;
-}
-
 export function searchIdeas(data, query, limit = 10) {
   const q = String(query || "").trim();
   if (!q) return [];
-  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const byWord = q.toLowerCase().split(/\s+/).filter(Boolean).map((w) => [...wordVariants(w)]);
   const scored = [];
   for (const idea of data.ideas) {
+    const extra = areaOf(data, idea).label;
+    if (!matchQuery(idea, q, extra)) continue;
     const title = idea.title.toLowerCase();
     const tagline = idea.tagline.toLowerCase();
     const body = [
-      idea.describe, idea.id, areaOf(data, idea).label, idea.helps, idea.watch,
+      idea.describe, idea.id, idea.helps, idea.watch,
       (idea.needs || []).join(" "), (idea.steps || []).join(" "),
       ...Object.values(idea.kit || {}).map((row) => row[0])
     ].join(" ").toLowerCase();
     let score = 0;
     let matchedAll = true;
-    for (const w of words) {
+    for (const vs of byWord) {
       let hit = 0;
-      if (title.includes(w)) hit += 5;
-      if (tagline.includes(w)) hit += 3;
-      if (body.includes(w)) hit += 1;
+      if (vs.some((v) => title.includes(v))) hit += 5;
+      if (vs.some((v) => tagline.includes(v))) hit += 3;
+      if (vs.some((v) => body.includes(v))) hit += 1;
       if (!hit) matchedAll = false;
       score += hit;
     }
     if (!matchedAll) continue;
-    scored.push({ idea, score, where: title.includes(words[0]) ? idea.title : snippet(idea.describe, words[0]) });
+
+    let where = "";
+    for (const v of byWord[0]) {
+      if (title.includes(v)) { where = idea.title; break; }
+      if (tagline.includes(v)) { where = idea.tagline; break; }
+    }
+    if (!where) {
+      const dLow = idea.describe.toLowerCase();
+      const at = dLow.indexOf(byWord[0][0]);
+      if (at >= 0) {
+        const start = Math.max(0, at - 40);
+        where = (start > 0 ? "\u2026" : "") + idea.describe.slice(start, at + byWord[0][0].length + 40);
+        if (start + at + byWord[0][0].length + 40 < idea.describe.length) where += "\u2026";
+      } else {
+        where = idea.describe.slice(0, 60);
+      }
+    }
+    scored.push({ idea, score, where });
   }
-  scored.sort((a, b) => b.score - a.score || a.idea.title.localeCompare(b.idea.title));
+  scored.sort((a, b) => b.score - a.score || (a.idea.title < b.idea.title ? -1 : a.idea.title > b.idea.title ? 1 : 0));
   return scored.slice(0, Math.max(1, Math.min(50, limit)));
 }
 

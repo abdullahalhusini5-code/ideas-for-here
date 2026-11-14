@@ -48,7 +48,7 @@ npm run verify
 
 | Check | Command | What it proves |
 |---|---|---|
-| Catalog, schema, MCP, server | `npm test` | 46 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy, and the server's guardrails hold |
+| Catalog, schema, MCP, server | `npm test` | 62 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy, and the server's guardrails hold |
 | Schema | `npm run check:schema` | `ideas.json` conforms to `ideas.schema.json`, and the schema uses no keyword the checker cannot enforce |
 | Repo promises | `npm run check:repo` | the test count quoted in prose is true, there are zero runtime dependencies, and every dev dependency is pinned |
 | HTML | `npm run check:html` | every page in the root is valid HTML (dev-only tool, never served) |
@@ -76,10 +76,11 @@ under the repo.
 | `app.js` | Async boot, URL state, deep links, filtering, ranking, questionnaire, remix, rendering |
 | `brain.html` | The four layers as an interactive scan, plus a seven-step MCP guide |
 | `server.mjs` | Local static server + `/api/ideas` + `/api/validate` + `/mcp` (Streamable HTTP) |
-| `mcp/core.mjs` | Catalog access, validation, search, write rules, MCP tools/resources/prompts |
+| `matcher.mjs` | The shared search matcher: synonyms, a short suffix rule, one deterministic order |
+| `mcp/core.mjs` | Catalog access, validation, search (via `matcher.mjs`), write rules, MCP tools/resources/prompts |
 | `mcp/server.mjs` | MCP over stdio, with `--read-only` |
 | `mcp/README.md` | Client configs for Claude Desktop/Code, Cursor, Codex, OpenCode; tool reference |
-| `tools/test-mcp.mjs` | 46 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/test-mcp.mjs` | 62 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
 | `tools/check-schema.mjs` | Checks `ideas.json` against `ideas.schema.json` (no dependencies) |
 | `tools/schema-lite.mjs` | The small JSON Schema checker the two above use |
 | `tools/check-links.js` | Re-checks every external link in the catalog and every page's local links |
@@ -168,6 +169,9 @@ is on [`brain.html`](brain.html).
 
 Reading is always available. Writing needs a local stdio or HTTP server without
 `--read-only`, and writes go to `ideas.json` on that machine.
+
+`ideas_search` and the page's search field call the same `matcher.mjs`, so a query returns
+the same ideas in the same order whichever one you ask.
 
 ## Provenance rules
 

@@ -36,6 +36,17 @@ build it, plus free-text search. Every card carries the facts needed before open
 roughly how long, how it is built, what you need, and how many free pieces the kit holds —
 and expands into a *build kit* with who it helps, the first moves, and the honest catch.
 
+### Search
+
+Search runs on the same matcher as the MCP server (`matcher.mjs`), so the page and an
+agent always agree. One small, fixed synonym table (`rubbish` ↔ `waste` ↔ `bins`,
+`school` ↔ `parents` ↔ `teacher`) and one short suffix list (`-s`, `-es`, `-ed`, `-ing`)
+mean "bins" finds the waste idea and "baking" finds the baking coach, without a search
+library. It stays deterministic: no `Intl` collation, no randomness, so the same query
+returns the same ideas in the same order every time. The count line says how many of the
+catalog matched, and a miss offers three concrete moves — clear the search, try an area,
+or browse everything — instead of an empty grid.
+
 **Match me.** Four questions, one screen each, then a ranked shortlist:
 
 1. What do you want out of this? → `ease` / `earn` / `help` / `learn`
@@ -122,7 +133,8 @@ agents, and Streamable HTTP at `/mcp` from `server.mjs`. It exposes eight tools 
 search, get, stats, suggest, validate, add, update), three resources plus an
 `ideas://idea/{id}` template, and one planning prompt. Reads always work; writes validate
 the whole catalog first, then replace `ideas.json` atomically, and are refused under
-`--read-only`.
+`--read-only`. `ideas_search` uses the same `matcher.mjs` as the page, so the two never
+disagree about what a query means.
 
 This is the deliberate split: **the public page stays static and read-only, because GitHub
 Pages cannot run a Node process.** MCP requires a local checkout or a self-hosted

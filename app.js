@@ -11,6 +11,7 @@
   let REMIX_TOPICS = [];
   let REMIX_FORMATS = [];
   let REMIX_CONSTRAINTS = [];
+  let matchFn;
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const el = (tag, cls) => { const n = document.createElement(tag); if (cls) n.className = cls; return n; };
@@ -185,12 +186,7 @@
 
   function matchesQuery(idea) {
     if (!state.query) return true;
-    const hay = [
-      idea.title, idea.tagline, idea.describe, idea.area,
-      areaOf(idea).label, (idea.needs || []).join(" "),
-      (idea.steps || []).join(" ")
-    ].join(" ").toLowerCase();
-    return state.query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
+    return matchFn(idea, state.query, areaOf(idea).label);
   }
 
   function filtered() {
@@ -531,9 +527,45 @@
       : `${list.length} of ${IDEAS.length} ideas${state.query ? ` for “${state.query}”` : ""}`;
 
     if (!list.length) {
-      const empty = el("p");
-      empty.style.cssText = "padding:34px 4px;grid-column:1/-1;border-top:1px solid var(--rule);color:var(--muted)";
-      empty.textContent = "Nothing matches that combination. Clear a filter, or shuffle a brief below.";
+      const empty = el("div", "empty");
+      if (state.query) {
+        const p = el("p");
+        p.textContent = `No ideas match “${state.query}”.`;
+        const actions = el("div", "empty__actions");
+        const bClear = el("button", "btn btn--ghost btn--sm");
+        bClear.type = "button";
+        bClear.textContent = "Clear the search";
+        bClear.addEventListener("click", () => {
+          state.query = "";
+          const search = $("#search");
+          if (search) search.value = "";
+          renderGrid();
+          syncUrl();
+        });
+        const bArea = el("button", "btn btn--ghost btn--sm");
+        bArea.type = "button";
+        bArea.textContent = "Try an area instead";
+        bArea.addEventListener("click", () => {
+          state.query = "";
+          const search = $("#search");
+          if (search) search.value = "";
+          renderGrid();
+          syncUrl();
+          const chips = $("#chips-area");
+          if (chips) { chips.tabIndex = -1; chips.focus(); }
+        });
+        const bAll = el("button", "btn btn--ghost btn--sm");
+        bAll.type = "button";
+        bAll.textContent = "Browse everything";
+        bAll.addEventListener("click", () => resetBrowse(null));
+        actions.append(bClear, bArea, bAll);
+        empty.appendChild(p);
+        empty.appendChild(actions);
+      } else {
+        const p = el("p");
+        p.textContent = "Nothing matches that combination. Clear a filter, or shuffle a brief below.";
+        empty.appendChild(p);
+      }
       grid.appendChild(empty);
     }
 
@@ -969,6 +1001,8 @@
       showCatalogError(window.CATALOG_ERROR || "The catalog could not be loaded.");
       return;
     }
+    const { matchQuery } = await import("./matcher.mjs");
+    matchFn = matchQuery;
 
     AREAS = data.areas || [];
     TIMES = data.times || [];

@@ -327,7 +327,8 @@ h1 em { font-style: italic; color: var(--accent); }
   grid-column: 1 / -1; margin: 0; padding: 30px 4px;
   border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px;
 }
-.grid__note--error { color: var(--accent-ink); }
+.empty { grid-column: 1 / -1; padding: 26px 4px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 14px; }
+.empty__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 .card {
   border: 1px solid var(--rule);
   margin: -1px 0 0 -1px;
