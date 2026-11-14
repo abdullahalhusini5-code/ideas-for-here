@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { DATA_FILE, readCatalog, validateCatalog, REQUIRED_STRINGS } from "../mcp/core.mjs";
 import { validate as validateSchema, lintSchema } from "./schema-lite.mjs";
 import { matchQuery } from "../matcher.mjs";
+import { badgesFor, nextAnswers, GOAL_ORDER } from "../match.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_ONLY = process.argv.includes("--data-only");
@@ -733,6 +734,102 @@ async function testMatcher() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Match badges and the something-different walk                       */
+/* ------------------------------------------------------------------ */
+
+async function testMatch() {
+  console.log("\nMatch badges and the walk");
+  const data = readCatalog();
+  const idea = (id) => data.ideas.find((i) => i.id === id);
+  const garden = idea("garden-calendar");   /* food, weekend, ease+learn, all lanes */
+  const bread = idea("bread-coach");        /* food, evenings, learn+ease, ready+assistant */
+  const market = idea("market-prices");     /* money, weekend, ease+earn */
+  const texts = (list) => list.map((b) => b.text);
+
+  await test("an area match shows the area badge", () => {
+    const list = badgesFor({ area: "food", goal: null, time: null, lane: null }, garden);
+    assert.deepEqual(texts(list), ["food"]);
+    assert.equal(list[0].mark, "\u2713");
+    assert.equal(list[0].kind, "hit");
+  });
+
+  await test("a goal match shows the goal badge", () => {
+    const list = badgesFor({ area: null, goal: "learn", time: null, lane: null }, garden);
+    assert.deepEqual(texts(list), ["learning"]);
+    assert.equal(list[0].kind, "hit");
+  });
+
+  await test("an exact time match shows the time badge", () => {
+    const list = badgesFor({ area: null, goal: null, time: "weekend", lane: null }, garden);
+    assert.deepEqual(texts(list), ["weekend"]);
+    assert.equal(list[0].mark, "\u2713");
+  });
+
+  await test("an adjacent time match shows a near badge", () => {
+    const list = badgesFor({ area: null, goal: null, time: "weekend", lane: null }, bread);
+    assert.deepEqual(texts(list), ["evenings"]);
+    assert.equal(list[0].mark, "~");
+    assert.equal(list[0].kind, "near");
+  });
+
+  await test("a build-lane match shows the lane badge", () => {
+    const list = badgesFor({ area: null, goal: null, time: null, lane: "ready" }, garden);
+    assert.deepEqual(texts(list), ["no code"]);
+  });
+
+  await test("answers that hit nothing fall back to one closest-fit badge", () => {
+    const odd = { area: "health", minutes: "month", goals: ["help"], lanes: ["code"] };
+    const list = badgesFor({ area: "food", goal: "earn", time: "weekend", lane: "ready" }, odd);
+    assert.equal(list.length, 1);
+    assert.equal(list[0].kind, "fallback");
+    assert.equal(list[0].text, "closest fit");
+  });
+
+  await test("a badge appears only when its scoring branch scored", () => {
+    const list = badgesFor({ area: "money", goal: "learn", time: "weekend", lane: "ready" }, garden);
+    assert.deepEqual(texts(list), ["learning", "weekend", "no code"]);
+  });
+
+  const areas = data.areas.map((a) => a.id);
+  const start = { area: "food", goal: "ease", time: "weekend", lane: "ready" };
+
+  await test("the walk is deterministic for one starting answer set", () => {
+    const a = nextAnswers(start, areas);
+    const b = nextAnswers(start, areas);
+    assert.deepEqual(a, b);
+    assert.deepEqual(a.changed.map((c) => c.key), ["from-goal", "from-area"]);
+  });
+
+  await test("the walk keeps the time and build lane", () => {
+    const step = nextAnswers(start, areas);
+    assert.equal(step.answers.time, "weekend");
+    assert.equal(step.answers.lane, "ready");
+  });
+
+  await test("the walk visits every area before repeating one", () => {
+    let answers = { ...start };
+    const seen = [];
+    for (let i = 0; i < areas.length; i += 1) {
+      const step = nextAnswers(answers, areas);
+      answers = step.answers;
+      seen.push(answers.area);
+    }
+    assert.equal(new Set(seen).size, areas.length);
+    assert.equal(seen[0], areas[(areas.indexOf(start.area) + 1) % areas.length]);
+  });
+
+  await test("the walk reaches every goal in the question order", () => {
+    let answers = { ...start };
+    const seen = [];
+    for (let i = 0; i < GOAL_ORDER.length; i += 1) {
+      answers = nextAnswers(answers, areas).answers;
+      seen.push(answers.goal);
+    }
+    assert.equal(new Set(seen).size, GOAL_ORDER.length);
+  });
+}
+
+/* ------------------------------------------------------------------ */
 
 await testData();
 if (!DATA_ONLY) {
@@ -740,6 +837,7 @@ if (!DATA_ONLY) {
   await testWrites();
   await testHttp();
   await testMatcher();
+  await testMatch();
   await testGuardrails();
 }
 

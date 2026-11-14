@@ -67,6 +67,17 @@ Top three are shown in full (description, the first moves, what you'll need, and
 starting links that apply). The next eight appear as a compact list that jumps into the
 catalog with the area filter already applied.
 
+Each starter also carries a row of badges — `family ✓`, `evenings ✓`, `no code ✓` — one per
+line of the arithmetic that actually scored, with `~` for a time one bucket away. Badges
+come from `match.mjs`, the same module the tests exercise, so a badge can never claim a
+point the score did not award.
+
+**Something different.** After reading three, one button re-runs the ranking with the goal
+and the area stepped to the next values in the catalog's own order — a deterministic walk,
+not randomness — keeping time and build lane. The panel says what changed ("Now looking at
+home and money"), and one click restores the first answer set. Because the area index
+advances by one each time, a walk visits every area before repeating one.
+
 **Shortlist.** Open any card and press its save button to mark it; saved ideas appear in
 a "Your shortlist" tab, kept only in this browser's `localStorage` and cleared on demand.
 Nothing is sent anywhere.

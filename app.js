@@ -12,6 +12,7 @@
   let REMIX_FORMATS = [];
   let REMIX_CONSTRAINTS = [];
   let matchFn;
+  let matchMod;
 
   const $ = (sel, root) => (root || document).querySelector(sel);
   const el = (tag, cls) => { const n = document.createElement(tag); if (cls) n.className = cls; return n; };
@@ -30,12 +31,6 @@
     code:      "it's a proper coding project"
   };
 
-  const LANE_SHORT = {
-    ready: "no code",
-    assistant: "with an AI assistant",
-    code: "write the code"
-  };
-
   const state = {
     area: null,
     time: null,
@@ -44,6 +39,7 @@
     answers: { goal: null, area: null, time: null, lane: null },
     qIndex: 0,
     remixSeed: 1,
+    beforeDifferent: null,
     open: new Set(),
     shortlist: new Set(),
     deepIdea: null
@@ -387,7 +383,7 @@
     meta.appendChild(timeTok);
     idea.lanes.forEach((lane) => {
       const tok = el("span");
-      tok.textContent = LANE_SHORT[lane] || lane;
+      tok.textContent = (matchMod && matchMod.LANE_BADGE[lane]) || lane;
       meta.appendChild(tok);
     });
 
@@ -778,6 +774,7 @@
     $("#ask-results").hidden = true;
     $("#ask-form").hidden = false;
     state.qIndex = 0;
+    state.beforeDifferent = null;
     renderQuestion();
   });
 
@@ -845,6 +842,7 @@
     $("#match-sub").textContent =
       `Picked for ${areaLabelOf(a.area)} · ${timeLabel(a.time)} · ${laneLabel(a.lane)}. ` +
       `Ranked by arithmetic, not a model; every result prints its reasons.`;
+    syncDiffer();
 
     const host = $("#matches");
     host.innerHTML = "";
@@ -892,6 +890,47 @@
     return a ? a.label.toLowerCase() : "every area";
   }
 
+  /* The "something different" row: what changed, and one click back. */
+  function syncDiffer() {
+    const note = $("#match-changed");
+    const restore = $("#btn-restore");
+    const different = $("#btn-different");
+    if (!note || !restore || !different) return;
+    const before = state.beforeDifferent;
+    if (before) {
+      const a = state.answers;
+      const area = (matchMod && matchMod.AREA_BADGE[a.area]) || a.area;
+      const goal = (matchMod && matchMod.GOAL_BADGE[a.goal]) || a.goal;
+      note.hidden = false;
+      note.textContent = `Now looking at ${area} and ${goal}. Your time and build lane are unchanged.`;
+      restore.hidden = false;
+      different.textContent = "Show me another set";
+    } else {
+      note.hidden = true;
+      note.textContent = "";
+      restore.hidden = true;
+      different.textContent = "Show me different ones";
+    }
+  }
+
+  $("#btn-different").addEventListener("click", () => {
+    if (!matchMod) return;
+    if (!state.beforeDifferent) state.beforeDifferent = { ...state.answers };
+    const step = matchMod.nextAnswers(state.answers, AREAS.map((x) => x.id));
+    state.answers = step.answers;
+    renderMatches();
+    const note = $("#match-changed");
+    const live = $("#match-live");
+    if (live && note) live.textContent = `${note.textContent} ${live.textContent}`;
+  });
+
+  $("#btn-restore").addEventListener("click", () => {
+    if (!state.beforeDifferent) return;
+    state.answers = state.beforeDifferent;
+    state.beforeDifferent = null;
+    renderMatches();
+  });
+
   function textEl(tag, text) {
     const n = el(tag);
     n.textContent = text;
@@ -906,10 +945,27 @@
     const rank = el("p", "match__rank");
     rank.textContent = `Starter ${i + 1} · ${areaOf(idea).label}`;
     const h3 = textEl("h3", idea.title);
-    const tag = textEl("p", "match__tag");
+    const tag = el("p", "match__tag");
     tag.textContent = idea.tagline;
-    const text = textEl("p", "match__text");
+    const text = el("p", "match__text");
     text.textContent = idea.describe;
+
+    const badgeRow = el("p", "badges");
+    badgeRow.setAttribute("aria-label", "What matched");
+    (matchMod ? matchMod.badgesFor(state.answers, idea) : []).forEach((b) => {
+      const pair = el("span", "pbadge pbadge--" + b.kind);
+      const vis = el("span", "pbadge__vis");
+      vis.setAttribute("aria-hidden", "true");
+      vis.textContent = b.mark ? `${b.text} ${b.mark}` : b.text;
+      const sr = el("span", "sr-only");
+      sr.textContent = b.kind === "hit"
+        ? `${b.text} matched`
+        : b.kind === "near"
+          ? `${b.text} is one step away`
+          : b.text;
+      pair.append(vis, sr);
+      badgeRow.appendChild(pair);
+    });
 
     const why = el("p", "why");
     why.append(document.createTextNode("Why this one: "));
@@ -919,13 +975,13 @@
       : "it's the closest thing in the catalog to what you described.";
     why.appendChild(strong);
 
-    const helps = idea.helps ? textEl("p", "match__helps") : null;
+    const helps = idea.helps ? el("p", "match__helps") : null;
     if (helps) {
       const helpsLabel = el("b"); helpsLabel.textContent = "Good for ";
       helps.append(helpsLabel, document.createTextNode(idea.helps));
-      main.append(rank, h3, tag, text, helps, why);
+      main.append(rank, h3, tag, text, helps, badgeRow, why);
     } else {
-      main.append(rank, h3, tag, text, why);
+      main.append(rank, h3, tag, text, badgeRow, why);
     }
 
     const side = el("div", "match__side");
@@ -1003,6 +1059,7 @@
     }
     const { matchQuery } = await import("./matcher.mjs");
     matchFn = matchQuery;
+    matchMod = await import("./match.mjs");
 
     AREAS = data.areas || [];
     TIMES = data.times || [];

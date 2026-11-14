@@ -512,6 +512,14 @@ h1 em { font-style: italic; color: var(--accent); }
 }
 .why { border-left: 2px solid var(--accent); padding: 2px 0 2px 14px; margin: 0 0 16px; font-size: 14px; color: var(--ink-soft); }
 .why b { color: var(--ink); }
+
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.pbadge { display: inline-flex; align-items: center; border: 1px solid var(--rule); border-radius: 2px; padding: 3px 8px; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); background: var(--paper); }
+.pbadge--near { border-style: dashed; color: var(--muted); }
+.pbadge--fallback { color: var(--muted); font-style: normal; }
+
+.differ { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 26px; }
+.differ__note { order: 3; margin: 0; flex: 1 1 100%; font-size: 13.5px; color: var(--muted); border-left: 2px solid var(--rule); padding-left: 12px; }
 .match__side { padding-left: 0; }
 @media (min-width: 860px) { .match__side { border-left: 1px solid var(--rule-soft); padding-left: 22px; } }
 .match__side h4 { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
