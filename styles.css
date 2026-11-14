@@ -692,13 +692,63 @@ footer { border-top: 1px solid var(--rule); padding: 40px 0 34px; }
   html { scroll-behavior: auto; }
 }
 
+@page { margin: 14mm; }
+
 @media print {
   .topbar, .modeswitch, .controls, .remix, .expander, .about, .start, .hero__panel, .suggest, footer, .skip { display: none !important; }
   body { background: #fff; font-size: 11pt; }
   body::before { display: none; }
-  .card { border: 1px solid #ccc; break-inside: avoid; margin: 0; }
+  .card { border: 1px solid #ccc; break-inside: avoid; margin: 0; background: #fff; }
   .printnote {
     display: block; max-width: var(--maxw); margin: 16px auto 0; padding: 0 var(--pad);
     font-family: var(--mono); font-size: 8pt; color: #555; letter-spacing: .04em;
   }
+
+  /* Black on white whatever the screen theme is: paper has no dark mode. */
+  .card, .card * { color: #111 !important; }
+  .card__save { display: none !important; }
+  .card__area .dot { background: #111 !important; }
+  .card__meta span { border-color: #bbb !important; }
+  .badge { background: #111 !important; color: #fff !important; }
+  .kitlinks { background: #ccc !important; border-color: #ccc !important; }
+  .kitlinks a, .kitlinks .kitlink-plain { background: #fff !important; }
+  .kit ul.plain li { border-color: #bbb !important; }
+
+  /* "Print this brief": one card, alone on the page. */
+  body.print-one .hero,
+  body.print-one .sectionhead,
+  body.print-one .resultbar,
+  body.print-one .panel:not(.panel--print),
+  body.print-one .panel--print .card:not(.card--print),
+  body.print-one .printbtn,
+  body.print-one .printnote:not(.printnote--top) { display: none !important; }
+
+  body.print-one .panel--print { padding: 0; }
+  body.print-one .grid { display: block; }
+  body.print-one .printnote--top {
+    max-width: none; margin: 0 0 8mm; padding: 0 0 3mm;
+    border-bottom: 1px solid #ccc; font-size: 7.5pt; letter-spacing: .02em;
+  }
+  body.print-one .card--print {
+    border: 0; margin: 0; padding: 0; background: #fff;
+    break-inside: avoid; break-after: avoid;
+  }
+  body.print-one .card--print h3 { font-size: 18pt; line-height: 1.12; margin-bottom: 1.5mm; }
+  body.print-one .card--print .card__top { margin-bottom: 2mm; }
+  body.print-one .card--print .card__tag { margin-bottom: 2mm; }
+  body.print-one .card--print .card__text,
+  body.print-one .card--print .kit__note { font-size: 10pt; line-height: 1.45; margin-bottom: 3mm; }
+  body.print-one .card--print .card__meta { margin-bottom: 2.5mm; }
+  body.print-one .card--print .card__facts { margin-top: 1.5mm; }
+  body.print-one .kit { break-inside: avoid; margin-top: 4mm; padding-top: 3mm; }
+  body.print-one .kit h4 { margin-bottom: 1.2mm; break-after: avoid; }
+  body.print-one .kitlinks + h4 { margin-top: 3mm; }
+  body.print-one .kit ol { margin-bottom: 2.5mm; font-size: 10pt; }
+  body.print-one .kit ol li { margin-bottom: .8mm; }
+  body.print-one .kit ul.plain { margin-bottom: 2.5mm; }
+  body.print-one .kitlinks a,
+  body.print-one .kitlinks .kitlink-plain { padding: 1.4mm 3mm; font-size: 9.5pt; }
+  body.print-one .kitlinks a,
+  body.print-one .kitlinks .kitlink-plain,
+  body.print-one .kit ol li { break-inside: avoid; }
 }

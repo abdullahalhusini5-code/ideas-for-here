@@ -418,7 +418,7 @@
     card.classList.add("card--open");
     btn.setAttribute("aria-expanded", "true");
     btn.firstChild.textContent = "Hide the kit ";
-    if (!card.querySelector(".kit")) card.appendChild(kitEl(idea));
+    if (!card.querySelector(".kit")) card.appendChild(kitEl(idea, card));
   }
 
   function closeKit(card, btn) {
@@ -440,7 +440,7 @@
     }
   }
 
-  function kitEl(idea) {
+  function kitEl(idea, card) {
     const kit = el("div", "kit");
 
     if (idea.helps) {
@@ -483,6 +483,13 @@
       const pWatch = el("p", "kit__note"); pWatch.textContent = idea.watch;
       kit.append(hWatch, pWatch);
     }
+
+    const print = el("button", "btn btn--ghost btn--sm printbtn");
+    print.type = "button";
+    print.textContent = "Print this brief";
+    print.addEventListener("click", () => printBrief(card, idea));
+    kit.append(print);
+
     return kit;
   }
 
@@ -591,13 +598,56 @@
     setTimeout(() => card.classList.remove("card--flash"), 1600);
   });
 
-  /* Print: open every kit so the paper copy is complete. */
+  /* Print: one brief, or the whole catalog.
+   *
+   * "Print this brief" marks one card, prints, and puts everything back. A
+   * plain Ctrl+P still prints the catalog, with every kit open, as before. */
+  let printRestore = null;
+
+  function printBrief(card, idea) {
+    if (!card) return;
+    const btn = card.querySelector(".expander");
+    const wasOpen = !!btn && btn.getAttribute("aria-expanded") === "true";
+    if (btn && !wasOpen) btn.click();
+
+    const panel = card.closest(".panel");
+    document.body.classList.add("print-one");
+    if (panel) panel.classList.add("panel--print");
+    card.classList.add("card--print");
+
+    printRestore = {
+      title: document.title,
+      panel,
+      card,
+      wasOpen
+    };
+    document.title = `${idea.title} — Ideas for Here`;
+    window.print();
+  }
+
+  function endPrintBrief() {
+    if (!printRestore) return;
+    const { title, panel, card, wasOpen } = printRestore;
+    printRestore = null;
+    document.body.classList.remove("print-one");
+    if (card) card.classList.remove("card--print");
+    if (panel) panel.classList.remove("panel--print");
+    document.title = title;
+    /* Put the card back the way it was found: if the kit was shut, shut it. */
+    const btn = card && card.querySelector(".expander");
+    if (!wasOpen && btn && btn.getAttribute("aria-expanded") === "true") btn.click();
+  }
+
   window.addEventListener("beforeprint", () => {
-    document.querySelectorAll(".card").forEach((card) => {
+    const one = document.querySelector(".card--print");
+    const cards = one ? [one] : Array.from(document.querySelectorAll(".card"));
+    cards.forEach((card) => {
       const btn = card.querySelector(".expander");
       if (btn && btn.getAttribute("aria-expanded") !== "true") btn.click();
     });
   });
+
+  window.addEventListener("afterprint", endPrintBrief);
 
   /* ------------------------------------------------------------------ */
   /* Remix generator (deterministic)                                     */

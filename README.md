@@ -218,4 +218,7 @@ still records standard server logs as the host; the in-page privacy note says so
   `aria-pressed` / `aria-expanded`, a skip link, and `prefers-reduced-motion` honoured.
 - **Shortlist:** save ideas from any card; kept only in this browser (`localStorage`) and
   listed in their own tab, with keyboard reachable controls.
+- **Print:** "Print this brief" in any build kit prints that one card, kit open and chrome
+  hidden, black on white in either theme, then restores the page. Ctrl+P still prints the
+  whole catalog.
 - **Everything works at 320 px wide, and nothing is injected by a build step.**

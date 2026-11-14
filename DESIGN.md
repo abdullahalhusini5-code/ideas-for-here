@@ -219,6 +219,19 @@ would rather invent their own brief than pick one: name the problem in one sente
 the first move on paper, show it to one person. It is hidden in print with the other
 chrome.
 
+### Print
+
+A printed brief is where this page leaves the screen: pinned to a fridge, handed to a
+neighbour, taken to a meeting. Every kit carries **Print this brief**, which marks its card,
+prints that card alone with the kit open — real page margins, black on white whatever the
+screen theme is, the chrome and the other thirty cards gone — and then puts the page back,
+document title included. A plain Ctrl+P still prints the whole catalog with every kit open.
+
+The single-brief layout is budgeted to one page on both A4 and Letter. The longest card in
+the catalog (the planting calendar, four kit rows and four steps) measures 797 px at the A4
+content width in Chromium, against 950 px of Letter content height, so the margin is real
+rather than lucky. `break-inside: avoid` keeps rows, steps and the kit from splitting.
+
 Accessibility: real buttons with `aria-pressed` / `aria-expanded`, a skip link, visible
 focus rings, `prefers-reduced-motion` honoured, a light/dark toggle (stored in
 `localStorage`, defaults to the operating system) with WCAG AA contrast in both themes,
