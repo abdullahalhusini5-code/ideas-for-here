@@ -16,6 +16,7 @@ import { DATA_FILE, readCatalog, validateCatalog, REQUIRED_STRINGS } from "../mc
 import { validate as validateSchema, lintSchema } from "./schema-lite.mjs";
 import { matchQuery } from "../matcher.mjs";
 import { badgesFor, nextAnswers, GOAL_ORDER } from "../match.mjs";
+import { ideaFromIssue, FORM_FIELDS } from "./issue-to-idea.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA_ONLY = process.argv.includes("--data-only");
@@ -830,6 +831,87 @@ async function testMatch() {
 }
 
 /* ------------------------------------------------------------------ */
+/* Issue form to idea                                                  */
+/* ------------------------------------------------------------------ */
+
+async function testIssue() {
+  console.log("\nIssue form to idea");
+  const data = readCatalog();
+  const fixture = fs.readFileSync(path.join(ROOT, "tools", "fixtures", "issue-body.md"), "utf8");
+  const convert = (body) => ideaFromIssue(body, data);
+
+  await test("the issue fixture converts to the expected idea", () => {
+    const idea = convert(fixture);
+    assert.equal(idea.id, "a-shared-tool-shed-for-the-street");
+    assert.equal(idea.title, "A shared tool shed for the street");
+    assert.equal(idea.area, "community");
+    assert.equal(idea.minutes, "weekend");
+    assert.deepEqual(idea.lanes, ["ready"]);
+    assert.deepEqual(idea.goals, ["help"]);
+    assert.equal(idea.steps.length, 3);
+    assert.equal(idea.steps[0], "Ask five neighbours what they would lend.");
+    assert.deepEqual(idea.needs, ["A phone", "a spare shelf", "one neighbour who will hold a key"]);
+    assert.deepEqual(Object.keys(idea.kit), ["data", "pattern", "publish"]);
+    assert.deepEqual(idea.kit.data, ["OpenStreetMap", "https://www.openstreetmap.org/", "Free map data, no key"]);
+    assert.ok(idea.helps.startsWith("Neighbours in flats"));
+    assert.ok(idea.watch.startsWith("Someone has to hold the keys"));
+  });
+
+  await test("a missing required field is named", () => {
+    const body = fixture.replace(/### The honest catch[\s\S]*?(?=### Area)/, "");
+    assert.throws(() => convert(body), /The honest catch/);
+  });
+
+  await test("an unticked link check is refused", () => {
+    const body = fixture.replace("- [X] I opened", "- [ ] I opened");
+    assert.throws(() => convert(body), /not ticked/);
+  });
+
+  await test("a kit link that is not http is refused", () => {
+    const body = fixture.replace("https://www.openstreetmap.org/", "ftp://example.org/map");
+    assert.throws(() => convert(body), /not an http\(s\) link/);
+  });
+
+  await test("a kit row with the wrong number of parts is refused", () => {
+    const body = fixture.replace(
+      "data | OpenStreetMap | https://www.openstreetmap.org/ | Free map data, no key",
+      "data | OpenStreetMap | https://www.openstreetmap.org/"
+    );
+    assert.throws(() => convert(body), /needs four parts/);
+  });
+
+  await test("an optional field left blank becomes empty", () => {
+    const body = fixture.replace(
+      "A phone, a spare shelf, one neighbour who will hold a key",
+      "_No response_"
+    );
+    assert.deepEqual(convert(body).needs, []);
+  });
+
+  await test("the converted idea keeps the catalog valid", () => {
+    const copy = structuredClone(data);
+    copy.ideas.push(convert(fixture));
+    assert.deepEqual(validateCatalog(copy), []);
+  });
+
+  await test("a title already in the catalog gets a numbered id", () => {
+    const copy = structuredClone(data);
+    copy.ideas.push(convert(fixture));
+    assert.equal(ideaFromIssue(fixture, copy).id, "a-shared-tool-shed-for-the-street-2");
+  });
+
+  await test("the issue form asks every field the parser reads", () => {
+    const form = fs.readFileSync(
+      path.join(ROOT, ".github", "ISSUE_TEMPLATE", "new-idea.yml"),
+      "utf8"
+    );
+    for (const label of Object.values(FORM_FIELDS)) {
+      assert.ok(form.includes(`label: ${label}`), `the form is missing “${label}”`);
+    }
+  });
+}
+
+/* ------------------------------------------------------------------ */
 
 await testData();
 if (!DATA_ONLY) {
@@ -838,6 +920,7 @@ if (!DATA_ONLY) {
   await testHttp();
   await testMatcher();
   await testMatch();
+  await testIssue();
   await testGuardrails();
 }
 

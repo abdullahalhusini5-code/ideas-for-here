@@ -151,7 +151,7 @@ stream open.
 The test suite drives both transports end to end:
 
 ```powershell
-node tools\test-mcp.mjs            # 73 checks: data, schema, stdio, writes on a temp copy, HTTP
+node tools\test-mcp.mjs            # 82 checks: data, schema, stdio, writes on a temp copy, HTTP
 node tools\test-mcp.mjs --data-only
 ```
 

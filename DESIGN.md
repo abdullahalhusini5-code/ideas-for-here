@@ -151,6 +151,21 @@ This is the deliberate split: **the public page stays static and read-only, beca
 Pages cannot run a Node process.** MCP requires a local checkout or a self-hosted
 `server.mjs`. Nothing about the visitor's page depends on that server being up.
 
+### Submissions without a backend
+
+A static page cannot accept a form post, but it can accept an issue. The **New idea** form
+(`.github/ISSUE_TEMPLATE/new-idea.yml`) asks one field per schema key, with dropdowns for
+area, time, build lane and goal, so a suggestion arrives in roughly the shape the catalog
+wants. `tools/issue-to-idea.mjs` parses it by label, builds the entry through `buildIdea()`
+— the same function the MCP write tools use — re-validates the whole catalog, bumps the
+date, and only then writes; `--check-links` refuses a kit link that does not answer.
+
+Parsing a form's rendered output is a small reliance on a UI, so the repo keeps a fixture
+of the real shape (`tools/fixtures/issue-body.md`) and a test that asserts the form still
+asks every label the parser reads. The honest tension is the account: the page promises "no
+accounts", and contributing needs a free GitHub one. The footer, and the "Not on the list?"
+tile at the end of the catalog, say so rather than pretending otherwise.
+
 ### The brain page
 
 `brain.html` is the one page about the system itself, and it is deliberately separate:

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Read the catalogue first
+    url: https://abdullahalhusini5-code.github.io/ideas-for-here/
+    about: Thirty-one ideas are already here. Check before suggesting a new one.
+  - name: Report a broken link
+    url: https://github.com/abdullahalhusini5-code/ideas-for-here/issues
+    about: A kit link that no longer opens. Say which idea, and which row.

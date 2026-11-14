@@ -499,11 +499,14 @@
     const b = el("b"); b.textContent = "Not on the list?";
     p.append(b, document.createTextNode(" Tell me the problem you actually have, the one this page missed."));
     const a = el("a", "btn btn--ghost btn--sm");
-    a.href = "https://github.com/abdullahalhusini5-code/ideas-for-here/issues/new";
+    a.href = "https://github.com/abdullahalhusini5-code/ideas-for-here/issues/new?template=new-idea.yml";
     a.target = "_blank";
     a.rel = "noopener";
     a.textContent = "Suggest an idea";
-    box.append(p, a);
+    /* Said here, where the click happens, not only in the footer. */
+    const note = el("span", "suggest__aside");
+    note.textContent = "Posting it needs a free GitHub account.";
+    box.append(p, a, note);
     return box;
   }
 

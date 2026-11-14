@@ -48,7 +48,7 @@ npm run verify
 
 | Check | Command | What it proves |
 |---|---|---|
-| Catalog, schema, MCP, server | `npm test` | 73 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy, and the server's guardrails hold |
+| Catalog, schema, MCP, server | `npm test` | 82 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy, and the server's guardrails hold |
 | Schema | `npm run check:schema` | `ideas.json` conforms to `ideas.schema.json`, and the schema uses no keyword the checker cannot enforce |
 | Repo promises | `npm run check:repo` | the test count quoted in prose is true, there are zero runtime dependencies, and every dev dependency is pinned |
 | HTML | `npm run check:html` | every page in the root is valid HTML (dev-only tool, never served) |
@@ -81,11 +81,14 @@ under the repo.
 | `mcp/core.mjs` | Catalog access, validation, search (via `matcher.mjs`), write rules, MCP tools/resources/prompts |
 | `mcp/server.mjs` | MCP over stdio, with `--read-only` |
 | `mcp/README.md` | Client configs for Claude Desktop/Code, Cursor, Codex, OpenCode; tool reference |
-| `tools/test-mcp.mjs` | 73 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/test-mcp.mjs` | 82 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
 | `tools/check-schema.mjs` | Checks `ideas.json` against `ideas.schema.json` (no dependencies) |
 | `tools/schema-lite.mjs` | The small JSON Schema checker the two above use |
 | `tools/check-links.js` | Re-checks every external link in the catalog and every page's local links |
 | `tools/check-contrast.mjs` | Asserts both theme blocks agree and every text colour clears WCAG AA |
+| `tools/issue-to-idea.mjs` | Turns a "New idea" issue body into a validated `ideas.json` entry (dry run by default) |
+| `tools/fixtures/issue-body.md` | A real form-shaped issue body, so the parser is tested against the shape GitHub emits |
+| `.github/ISSUE_TEMPLATE/` | The public submission form, one field per schema key |
 | `theme.js` | Light/dark switch: stored choice, falls back to the operating system, no flash |
 | `.github/workflows/` | CI on every push, and the weekly link check that opens an issue |
 | `LICENSE` | CC BY 4.0 for text and catalog, MIT for code |
@@ -155,6 +158,28 @@ from the catalog length at load, so the count needs no other edit. Then verify:
 node tools\test-mcp.mjs        # catalog shape, MCP tools, HTTP API
 node tools\check-links.js      # every external URL returns 200
 ```
+
+### From an issue form
+
+A visitor can suggest an idea without touching the repository:
+
+1. The footer — and the "Not on the list?" tile at the end of the catalog — link to the
+   **New idea** issue form (`.github/ISSUE_TEMPLATE/new-idea.yml`), one field per schema key.
+2. A maintainer reviews it: plain language, an honest catch, at least three first moves, and
+   every link opened by hand.
+3. The issue body converts to a validated entry by command:
+
+   ```powershell
+   node tools\issue-to-idea.mjs --body body.md                          # dry run
+   node tools\issue-to-idea.mjs --body body.md --check-links --write
+   ```
+
+   The script parses by the form's own labels, builds the idea through `buildIdea()`, checks
+   the whole catalog again, bumps `updated`, and only then writes. `--check-links` refuses
+   any kit link that does not answer.
+
+The form is the one place a visitor needs an account (a free GitHub one). The footer says
+so rather than pretending otherwise. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## MCP
 

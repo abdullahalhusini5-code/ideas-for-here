@@ -1,0 +1,149 @@
+name: New idea
+description: Suggest one small app or project for where you live.
+title: "[Idea] "
+labels: ["new idea"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. Two things make a suggestion easy to accept:
+
+        - **Plain words.** Write for a neighbour, not for a developer. "Borrow the drill,
+          not buy it" is right; "peer-to-peer equipment rental platform" is not. A
+          maintainer will keep the technical detail in the build kit.
+        - **Only real links.** Every link you give must open in a browser. If you are not
+          sure, leave the row out — a shorter kit is welcome, an invented link is not.
+
+        Someone reads every issue. You will get a reply either way.
+  - type: input
+    id: idea-title
+    attributes:
+      label: Idea title
+      description: The name on the card. Short, plain, and specific.
+      placeholder: A shared tool shed for the street
+    validations:
+      required: true
+  - type: input
+    id: idea-tagline
+    attributes:
+      label: One-line summary
+      description: The promise, in one sentence.
+      placeholder: Borrow the drill, not buy it.
+    validations:
+      required: true
+  - type: textarea
+    id: idea-describe
+    attributes:
+      label: What it is
+      description: Two or three plain sentences. The problem first, then the small thing that helps.
+      placeholder: |
+        Most homes on a street own the same drill, ladder and wallpaper steamer, and use
+        each of them twice a year. A shared list of what is on the street, and who to ask,
+        turns that pile of duplicates into one shed.
+    validations:
+      required: true
+  - type: input
+    id: idea-helps
+    attributes:
+      label: Who it helps
+      description: One sentence naming the people, not the market.
+      placeholder: Neighbours in flats with nowhere to keep a ladder.
+    validations:
+      required: true
+  - type: textarea
+    id: idea-watch
+    attributes:
+      label: The honest catch
+      description: What will go wrong, or what makes it harder than it looks. Be blunt; this is the most useful field.
+      placeholder: Someone has to hold the keys, and one broken drill can end the whole thing.
+    validations:
+      required: true
+  - type: dropdown
+    id: idea-area
+    attributes:
+      label: Area
+      description: Which part of life does it touch?
+      options:
+        - "Food & garden"
+        - "Money & bills"
+        - "Home & things"
+        - "Family & kids"
+        - "Health"
+        - "Learning"
+        - "Community"
+        - "Work & business"
+    validations:
+      required: true
+  - type: dropdown
+    id: idea-time
+    attributes:
+      label: How much time
+      description: How long before a first version is in someone's hands?
+      options:
+        - "One weekend"
+        - "A few evenings"
+        - "A month of Sundays"
+    validations:
+      required: true
+  - type: dropdown
+    id: idea-lane
+    attributes:
+      label: How it is built
+      description: The easiest honest route, not the most impressive one.
+      options:
+        - "Ready-made tools, no code"
+        - "With an AI assistant"
+        - "Writing the code yourself"
+    validations:
+      required: true
+  - type: dropdown
+    id: idea-goal
+    attributes:
+      label: What you want out of it
+      description: Pick the one that matters most.
+      options:
+        - "Making daily life easier"
+        - "Bringing in a little money"
+        - "Being useful to people nearby"
+        - "Learning something by doing it"
+    validations:
+      required: true
+  - type: textarea
+    id: idea-steps
+    attributes:
+      label: First moves
+      description: Three or more steps, one per line, in order. Each one an afternoon-sized action.
+      placeholder: |
+        Ask five neighbours what they would lend.
+        Start a shared note with what is on the street.
+        Pick one street and one Saturday to test it.
+    validations:
+      required: true
+  - type: input
+    id: idea-needs
+    attributes:
+      label: What you already need
+      description: Optional. What the person must have before starting, separated by commas.
+      placeholder: A phone, a spare shelf, one neighbour who will hold a key
+  - type: textarea
+    id: idea-kit
+    attributes:
+      label: Free pieces
+      description: |
+        Optional, but the most valuable part of the kit. One row per line, in this shape:
+
+        `kind | Name | https://link | What it is in five words`
+
+        Kind is one of `data`, `data2`, `prompt`, `prompt2`, `pattern`, `publish`.
+        Only include a row if the link opens right now.
+      placeholder: |
+        data | OpenStreetMap | https://www.openstreetmap.org/ | Free map data, no key
+        pattern | awesome-llm-apps | https://github.com/Shubhamsaboo/awesome-llm-apps | Small assistant patterns
+        publish | Netlify | https://www.netlify.com/ | Free static hosting
+  - type: checkboxes
+    id: idea-links-checked
+    attributes:
+      label: Link check
+      options:
+        - label: I opened every link above and each one works.
+          required: true
