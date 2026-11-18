@@ -48,7 +48,7 @@ npm run verify
 
 | Check | Command | What it proves |
 |---|---|---|
-| Catalog, schema, MCP, server | `npm test` | 82 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy, and the server's guardrails hold |
+| Catalog, schema, MCP, server | `npm test` | 83 checks: the catalog is valid, the schema agrees with the runtime rules, both transports answer, writes work on a temp copy, and the server's guardrails hold |
 | Schema | `npm run check:schema` | `ideas.json` conforms to `ideas.schema.json`, and the schema uses no keyword the checker cannot enforce |
 | Repo promises | `npm run check:repo` | the test count quoted in prose is true, there are zero runtime dependencies, and every dev dependency is pinned |
 | HTML | `npm run check:html` | every page in the root is valid HTML (dev-only tool, never served) |
@@ -82,7 +82,7 @@ matrix starts at 22; the page and `server.mjs` themselves still need nothing but
 | `mcp/core.mjs` | Catalog access, validation, search (via `matcher.mjs`), write rules, MCP tools/resources/prompts |
 | `mcp/server.mjs` | MCP over stdio, with `--read-only` |
 | `mcp/README.md` | Client configs for Claude Desktop/Code, Cursor, Codex, OpenCode; tool reference |
-| `tools/test-mcp.mjs` | 82 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
+| `tools/test-mcp.mjs` | 83 checks: catalog, schema, stdio, writes on a temp copy, HTTP API and MCP |
 | `tools/check-schema.mjs` | Checks `ideas.json` against `ideas.schema.json` (no dependencies) |
 | `tools/schema-lite.mjs` | The small JSON Schema checker the two above use |
 | `tools/check-links.js` | Re-checks every external link in the catalog and every page's local links |
@@ -242,6 +242,8 @@ still records standard server logs as the host; the in-page privacy note says so
   region announces them.
 - **Structure:** one `h1` per page, heading order never skips a level, real buttons with
   `aria-pressed` / `aria-expanded`, a skip link, and `prefers-reduced-motion` honoured.
+  Each tab that hides the hero brings its own level-one heading, so no tab is ever
+  headingless; a test fails if a new one forgets.
 - **Shortlist:** save ideas from any card; kept only in this browser (`localStorage`) and
   listed in their own tab, with keyboard reachable controls.
 - **Print:** "Print this brief" in any build kit prints that one card, kit open and chrome

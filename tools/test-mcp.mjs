@@ -94,6 +94,20 @@ async function testData() {
     assert.deepEqual(fromSchema, fromValidator);
   });
 
+  /* Browse keeps the hero, and the hero holds the page's h1. Every other tab
+   * hides the hero, so it must bring its own — otherwise the document has no
+   * level-one heading while that tab is open, which axe reports as
+   * page-has-heading-one. Caught exactly that way once. */
+  await test("every tab that hides the hero carries its own h1", () => {
+    const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+    assert.match(html, /<h1[\s>]/, "the hero's h1 is gone");
+    for (const id of ["panel-ask", "panel-shortlist"]) {
+      const at = html.indexOf(`id="${id}"`);
+      assert.ok(at > -1, `${id} is missing from index.html`);
+      assert.match(html.slice(at, at + 4000), /<h1[\s>]/, `${id} has no h1 of its own`);
+    }
+  });
+
   /* Each fixture breaks one rule. `reject` says who must catch it:
    *   "both"      a shape rule the schema and validateCatalog agree on
    *   "schema"    a shape rule the runtime validator leaves to the schema
