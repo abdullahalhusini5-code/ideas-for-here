@@ -55,14 +55,15 @@ npm run verify
 | Contrast | `npm run check:contrast` | both theme blocks agree, every text colour clears WCAG AA |
 | Links | `npm run check:links` | every kit URL and every external link answers under 400; needs network |
 
-GitHub Actions runs the first four on every push and pull request, on Node 20 and 22
+GitHub Actions runs the first four on every push and pull request, on Node 22 and 24
 (`.github/workflows/ci.yml`), and the link check every Monday
 (`.github/workflows/links.yml`) — it opens an issue when a link breaks and closes it when
 the link answers again. The browser checks are local: Playwright is not installed in CI.
 
 `axe-core` and `html-validate` are **dev dependencies only**. Nothing from `node_modules`
 is served, `dependencies` stays empty, and versions are exact so a checker cannot change
-under the repo.
+under the repo. `html-validate` 11 requires Node ^22.22 or >=24.8, which is why the checker
+matrix starts at 22; the page and `server.mjs` themselves still need nothing but Node 18+.
 
 ## Files
 

@@ -16,7 +16,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        # The checkers, not the site, set this floor: html-validate 11 needs
+        # Node ^22.22 || >=24.8. Node 20 is end-of-life and cannot run it.
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
 
